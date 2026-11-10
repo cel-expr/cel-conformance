@@ -1,0 +1,58 @@
+load("@com_google_protobuf//bazel:cc_proto_library.bzl", "cc_proto_library")
+load("@com_google_protobuf//bazel:java_lite_proto_library.bzl", "java_lite_proto_library")
+load("@com_google_protobuf//bazel:java_proto_library.bzl", "java_proto_library")
+load("@com_google_protobuf//bazel:proto_library.bzl", "proto_library")
+load("@com_google_protobuf//bazel:py_proto_library.bzl", "py_proto_library")
+load("@com_google_protobuf//upb/bazel:upb_c_proto_library.bzl", "upb_c_proto_library")
+load("@com_google_protobuf//upb/bazel:upb_proto_reflection_library.bzl", "upb_proto_reflection_library")
+
+package(
+    default_applicable_licenses = ["//:license"],
+    default_visibility = ["//visibility:public"],
+    licenses = ["notice"],  # Apache 2.0
+)
+
+proto_library(
+    name = "test_all_types_proto",
+    srcs = ["test_all_types.proto"],
+    strip_import_prefix = "/proto",
+    deps = [
+        "@com_google_protobuf//:any_proto",
+        "@com_google_protobuf//:duration_proto",
+        "@com_google_protobuf//:empty_proto",
+        "@com_google_protobuf//:field_mask_proto",
+        "@com_google_protobuf//:struct_proto",
+        "@com_google_protobuf//:timestamp_proto",
+        "@com_google_protobuf//:wrappers_proto",
+    ],
+)
+
+cc_proto_library(
+    name = "test_all_types_cc_proto",
+    deps = [":test_all_types_proto"],
+)
+
+upb_c_proto_library(
+    name = "test_all_types_upb_proto",
+    deps = [":test_all_types_proto"],
+)
+
+upb_proto_reflection_library(
+    name = "test_all_types_upb_proto_reflection",
+    deps = [":test_all_types_proto"],
+)
+
+java_proto_library(
+    name = "test_all_types_java_proto",
+    deps = [":test_all_types_proto"],
+)
+
+java_lite_proto_library(
+    name = "test_all_types_java_proto_lite",
+    deps = [":test_all_types_proto"],
+)
+
+py_proto_library(
+    name = "test_all_types_py_pb2",  # proto3 libraries are named with a _pb2 suffix.
+    deps = [":test_all_types_proto"],
+)

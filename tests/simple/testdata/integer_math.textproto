@@ -101,7 +101,7 @@ section {
     expr: "-(42u)"
     disable_check: true
     eval_error: {
-      errors: { message:"no_such_overload" }
+      errors: { message: "no_such_overload" }
     }
   }
   test {
@@ -109,14 +109,14 @@ section {
     expr: "-false"
     disable_check: true
     eval_error: {
-      errors: { message:"no_such_overload" }
+      errors: { message: "no_such_overload" }
     }
   }
   test {
     name: "mod_zero"
     expr: "34 % 0"
     eval_error: {
-      errors: { message:"modulus by zero" }
+      errors: { message: "modulus by zero" }
     }
   }
   test {
@@ -133,7 +133,7 @@ section {
     name: "divide_zero"
     expr: "15 / 0"
     eval_error: {
-      errors: { message:"divide by zero" }
+      errors: { message: "divide by zero" }
     }
   }
   test {
@@ -144,7 +144,7 @@ section {
   test {
     name: "add_left_identity"
     expr: "0 + 17"
-    value: { int64_value: 17}
+    value: { int64_value: 17 }
   }
   test {
     name: "add_right_identity"
@@ -316,21 +316,21 @@ section {
     expr: "-(5u)"
     disable_check: true
     eval_error: {
-      errors: {  message:"no such overload" }
+      errors: { message: "no such overload" }
     }
   }
   test {
     name: "mod_zero"
     expr: "34u % 0u"
     eval_error: {
-      errors: { message:"modulus by zero" }
+      errors: { message: "modulus by zero" }
     }
   }
   test {
     name: "divide_zero"
     expr: "15u / 0u"
     eval_error: {
-      errors: { message:"divide by zero" }
+      errors: { message: "divide by zero" }
     }
   }
   test {
@@ -341,7 +341,7 @@ section {
   test {
     name: "add_left_identity"
     expr: "0u + 17u"
-    value: { uint64_value: 17}
+    value: { uint64_value: 17 }
   }
   test {
     name: "add_right_identity"

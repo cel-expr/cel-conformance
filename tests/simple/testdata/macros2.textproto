@@ -189,7 +189,8 @@ section {
   test {
     name: "one"
     expr: "[3].transformList(i, v, v * v + i)"
-    value: { list_value {
+    value: {
+      list_value {
         values: { int64_value: 9 }
       }
     }
@@ -197,7 +198,8 @@ section {
   test {
     name: "one_filter"
     expr: "[3].transformList(i, v, i == 0 && v == 3, v * v + i)"
-    value: { list_value {
+    value: {
+      list_value {
         values: { int64_value: 9 }
       }
     }
@@ -205,7 +207,8 @@ section {
   test {
     name: "many"
     expr: "[2, 4, 6].transformList(i, v, v / 2 + i)"
-    value: { list_value {
+    value: {
+      list_value {
         values: { int64_value: 1 }
         values: { int64_value: 3 }
         values: { int64_value: 5 }
@@ -215,7 +218,8 @@ section {
   test {
     name: "many_filter"
     expr: "[2, 4, 6].transformList(i, v, i != 1 && v != 4, v / 2 + i)"
-    value: { list_value {
+    value: {
+      list_value {
         values: { int64_value: 1 }
         values: { int64_value: 5 }
       }

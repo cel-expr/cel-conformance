@@ -27,7 +27,7 @@ section {
   test {
     name: "eval_map_results"
     description: "Check that map literals results are order independent."
-    expr: '{"k1":"v1","k":"v"}'
+    expr: "{\"k1\":\"v1\",\"k\":\"v\"}"
     value: {
       map_value {
         entries {

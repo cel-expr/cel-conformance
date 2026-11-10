@@ -1,0 +1,4 @@
+common --enable_bzlmod
+
+# Remove flag once cel-spec with https://github.com/cel-expr/cel-spec/issues/508 is used from BCR.
+common --incompatible_autoload_externally=proto_library,cc_proto_library,java_proto_library,py_proto_library

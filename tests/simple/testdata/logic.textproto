@@ -40,7 +40,7 @@ section {
 }
 section {
   name: "AND"
-  description:  "Tests for logical AND."
+  description: "Tests for logical AND."
   test {
     name: "all_true"
     expr: "true && true"
@@ -108,7 +108,7 @@ section {
 }
 section {
   name: "OR"
-  description:  "Tests for logical OR"
+  description: "Tests for logical OR"
   test {
     name: "all_true"
     expr: "true || true"

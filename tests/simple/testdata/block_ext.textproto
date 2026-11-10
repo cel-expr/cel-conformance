@@ -69,13 +69,13 @@ section: {
       map_value: {
         entries {
           key: {
-            string_value: 'a'
+            string_value: "a"
           }
           value: {
             map_value: {
               entries {
                 key: {
-                  string_value: 'b'
+                  string_value: "b"
                 }
                 value: {
                   int64_value: 1
@@ -86,13 +86,13 @@ section: {
         }
         entries {
           key: {
-            string_value: 'c'
+            string_value: "c"
           }
           value: {
             map_value: {
               entries {
                 key: {
-                  string_value: 'b'
+                  string_value: "b"
                 }
                 value: {
                   int64_value: 1
@@ -103,19 +103,19 @@ section: {
         }
         entries {
           key: {
-            string_value: 'd'
+            string_value: "d"
           }
           value: {
             map_value: {
               entries {
                 key: {
-                  string_value: 'e'
+                  string_value: "e"
                 }
                 value: {
                   map_value: {
                     entries {
                       key: {
-                        string_value: 'b'
+                        string_value: "b"
                       }
                       value: {
                         int64_value: 1
@@ -129,19 +129,19 @@ section: {
         }
         entries {
           key: {
-            string_value: 'e'
+            string_value: "e"
           }
           value: {
             map_value: {
               entries {
                 key: {
-                  string_value: 'e'
+                  string_value: "e"
                 }
                 value: {
                   map_value: {
                     entries {
                       key: {
-                        string_value: 'b'
+                        string_value: "b"
                       }
                       value: {
                         int64_value: 1
@@ -272,7 +272,7 @@ section: {
     }
     type_env: {
       name: "msg"
-      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" }}
+      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" } }
     }
     bindings: {
       key: "msg"
@@ -318,7 +318,7 @@ section: {
     }
     type_env: {
       name: "msg"
-      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" }}
+      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" } }
     }
     bindings: {
       key: "msg"
@@ -364,7 +364,7 @@ section: {
     }
     type_env: {
       name: "msg"
-      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" }}
+      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" } }
     }
     bindings: {
       key: "msg"
@@ -410,7 +410,7 @@ section: {
     }
     type_env: {
       name: "msg"
-      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" }}
+      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" } }
     }
     bindings: {
       key: "msg"
@@ -456,7 +456,7 @@ section: {
     }
     type_env: {
       name: "msg"
-      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" }}
+      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" } }
     }
     bindings: {
       key: "msg"
@@ -502,7 +502,7 @@ section: {
     }
     type_env: {
       name: "msg"
-      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" }}
+      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" } }
     }
     bindings: {
       key: "msg"
@@ -548,7 +548,7 @@ section: {
     }
     type_env: {
       name: "msg"
-      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" }}
+      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" } }
     }
     bindings: {
       key: "msg"
@@ -704,7 +704,7 @@ section: {
     }
     type_env: {
       name: "x"
-      ident: { type: { primitive: INT64 }}
+      ident: { type: { primitive: INT64 } }
     }
     bindings: {
       key: "x"
@@ -796,7 +796,7 @@ section: {
     }
     type_env: {
       name: "x"
-      ident: { type: { primitive: INT64 }}
+      ident: { type: { primitive: INT64 } }
     }
     bindings: {
       key: "x"
@@ -843,7 +843,7 @@ section: {
     }
     type_env: {
       name: "msg"
-      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" }}
+      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" } }
     }
     bindings: {
       key: "msg"
@@ -889,7 +889,7 @@ section: {
     }
     type_env: {
       name: "msg"
-      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" }}
+      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" } }
     }
     bindings: {
       key: "msg"
@@ -935,7 +935,7 @@ section: {
     }
     type_env: {
       name: "msg"
-      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" }}
+      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" } }
     }
     bindings: {
       key: "msg"
@@ -981,7 +981,7 @@ section: {
     }
     type_env: {
       name: "msg"
-      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" }}
+      ident: { type: { message_type: "cel.expr.conformance.proto3.TestAllTypes" } }
     }
     bindings: {
       key: "msg"
@@ -1027,10 +1027,10 @@ section: {
     }
     type_env: {
       name: "opt_x"
-      ident: { type: { primitive: INT64 }}
+      ident: { type: { primitive: INT64 } }
     }
     bindings: {
-      key: "opt_x",
+      key: "opt_x"
       value: {
         value: {
           int64_value: 5
@@ -1049,7 +1049,7 @@ section: {
     name: "optional_map_chained"
     expr: "cel.block([{\"key\": \"test\"}, optional.of(\"test\"), {?\"key\": cel.index(1)}, cel.index(2)[?\"bogus\"], cel.index(0)[?\"bogus\"], cel.index(3).or(cel.index(4)), cel.index(0)[\"key\"], cel.index(5).orValue(cel.index(6))], cel.index(7))"
     value: {
-      string_value: 'test'
+      string_value: "test"
     }
   }
   test: {

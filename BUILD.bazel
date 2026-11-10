@@ -1,8 +1,8 @@
 load("@rules_license//rules:license.bzl", "license")
 
 package(
-    default_applicable_licenses = [":license"],
-    default_visibility = ["//:__subpackages__"],
+    default_applicable_licenses = ["//:license"],
+    default_visibility = ["//visibility:public"],
 )
 
 license(
@@ -15,4 +15,7 @@ license(
 
 licenses(["notice"])
 
-exports_files(["LICENSE"])
+exports_files([
+    "LICENSE",
+    "MODULE.bazel",
+])

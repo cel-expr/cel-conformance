@@ -184,7 +184,8 @@ section {
   test {
     name: "list_one"
     expr: "[3].map(n, n * n)"
-    value: { list_value {
+    value: {
+      list_value {
         values: { int64_value: 9 }
       }
     }
@@ -192,7 +193,8 @@ section {
   test {
     name: "list_many"
     expr: "[2, 4, 6].map(n, n / 2)"
-    value: { list_value {
+    value: {
+      list_value {
         values: { int64_value: 1 }
         values: { int64_value: 2 }
         values: { int64_value: 3 }
@@ -223,7 +225,8 @@ section {
   test {
     name: "list_one_true"
     expr: "[2].filter(n, n == 2)"
-    value: { list_value {
+    value: {
+      list_value {
         values: { int64_value: 2 }
       }
     }
@@ -241,7 +244,8 @@ section {
   test {
     name: "list_some"
     expr: "[0, 1, 2, 3, 4].filter(x, x % 2 == 1)"
-    value: { list_value {
+    value: {
+      list_value {
         values: { int64_value: 1 }
         values: { int64_value: 3 }
       }
@@ -250,7 +254,8 @@ section {
   test {
     name: "list_all"
     expr: "[1, 2, 3].filter(n, n > 0)"
-    value: { list_value {
+    value: {
+      list_value {
         values: { int64_value: 1 }
         values: { int64_value: 2 }
         values: { int64_value: 3 }
@@ -276,7 +281,8 @@ section {
   test {
     name: "filter_all"
     expr: "['signer'].filter(signer, ['artifact'].all(artifact, true))"
-    value: { list_value {
+    value: {
+      list_value {
         values: { string_value: "signer" }
       }
     }

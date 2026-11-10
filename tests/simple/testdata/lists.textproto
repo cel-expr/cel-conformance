@@ -29,7 +29,7 @@ section {
   test {
     name: "empty_empty"
     expr: "[] + []"
-    value: { list_value { } }
+    value: { list_value {} }
   }
   test {
     name: "left_unit"

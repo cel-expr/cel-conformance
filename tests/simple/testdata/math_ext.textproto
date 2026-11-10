@@ -919,7 +919,7 @@ section: {
     name: "true"
     expr: "math.isNaN(0.0/0.0)"
   }
-   test: {
+  test: {
     name: "false"
     expr: "!math.isNaN(1.0/0.0)"
   }
@@ -940,7 +940,7 @@ section: {
     name: "true"
     expr: "math.isInf(1.0/0.0)"
   }
-   test: {
+  test: {
     name: "false"
     expr: "!math.isInf(0.0/0.0)"
   }
@@ -1147,42 +1147,42 @@ section: {
 section: {
   name: "bit_shift_left"
   test: {
-    name: "int",
+    name: "int"
     expr: "math.bitShiftLeft(1, 2)"
     value: {
       int64_value: 4
     }
   }
   test: {
-    name: "int_large_shift",
+    name: "int_large_shift"
     expr: "math.bitShiftLeft(1, 200)"
     value: {
       int64_value: 0
     }
   }
   test: {
-    name: "int_negative_large_shift",
+    name: "int_negative_large_shift"
     expr: "math.bitShiftLeft(-1, 200)"
     value: {
       int64_value: 0
     }
   }
   test: {
-    name: "uint",
+    name: "uint"
     expr: "math.bitShiftLeft(1u, 2)"
     value: {
       uint64_value: 4
     }
   }
   test: {
-    name: "uint_large_shift",
+    name: "uint_large_shift"
     expr: "math.bitShiftLeft(1u, 200)"
     value: {
       uint64_value: 0
     }
   }
   test: {
-    name: "bad_shift",
+    name: "bad_shift"
     expr: "math.bitShiftLeft(1u, -1)"
     eval_error: {
       errors: {
@@ -1204,49 +1204,49 @@ section: {
 section: {
   name: "bit_shift_right"
   test: {
-    name: "int",
+    name: "int"
     expr: "math.bitShiftRight(1024, 2)"
     value: {
       int64_value: 256
     }
   }
   test: {
-    name: "int_large_shift",
+    name: "int_large_shift"
     expr: "math.bitShiftRight(1024, 64)"
     value: {
       int64_value: 0
     }
   }
   test: {
-    name: "int_negative",
+    name: "int_negative"
     expr: "math.bitShiftRight(-1024, 3)"
     value: {
       int64_value: 2305843009213693824
     }
   }
   test: {
-    name: "int_negative_large_shift",
+    name: "int_negative_large_shift"
     expr: "math.bitShiftRight(-1024, 64)"
     value: {
       int64_value: 0
     }
   }
   test: {
-    name: "uint",
+    name: "uint"
     expr: "math.bitShiftRight(1024u, 2)"
     value: {
       uint64_value: 256
     }
   }
   test: {
-    name: "uint_large_shift",
+    name: "uint_large_shift"
     expr: "math.bitShiftRight(1024u, 200)"
     value: {
       uint64_value: 0
     }
   }
   test: {
-    name: "bad_shift",
+    name: "bad_shift"
     expr: "math.bitShiftRight(1u, -1)"
     eval_error: {
       errors: {

@@ -38,17 +38,17 @@ section {
   }
   test {
     name: "self_eval_string_empty_quotes"
-    expr: '""'
+    expr: "\"\""
     value: { string_value: "" }
   }
   test {
     name: "self_eval_string_raw_prefix"
-    expr: 'r""'
+    expr: "r\"\""
     value: { string_value: "" }
   }
   test {
     name: "self_eval_bytes_empty"
-    expr: 'b""'
+    expr: "b\"\""
     value: { bytes_value: "" }
   }
   test {
@@ -63,17 +63,17 @@ section {
   }
   test {
     name: "self_eval_empty_list"
-    expr: '[]'
+    expr: "[]"
     value: { list_value: {} }
   }
   test {
     name: "self_eval_empty_map"
-    expr: '{}'
+    expr: "{}"
     value: { map_value: {} }
   }
   test {
     name: "self_eval_string_raw_prefix_triple_double"
-    expr: 'r""""""'
+    expr: "r\"\"\"\"\"\""
     value: { string_value: "" }
   }
   test {
@@ -112,7 +112,7 @@ section {
   }
   test {
     name: "self_eval_string_excl"
-    expr: '"!"'
+    expr: "\"!\""
     value: { string_value: "!" }
   }
   test {
@@ -141,7 +141,7 @@ section {
   }
   test {
     name: "self_eval_map_singleitem"
-    expr: '{"k":"v"}'
+    expr: "{\"k\":\"v\"}"
     value: {
       map_value {
         entries {
@@ -178,17 +178,17 @@ section {
   }
   test {
     name: "self_eval_unicode_escape_four"
-    expr: '"\\u270c"'
+    expr: "\"\\u270c\""
     value: { string_value: "\xe2\x9c\x8c" }
   }
   test {
     name: "self_eval_unicode_escape_eight"
-    expr: '"\\U0001f431"'
+    expr: "\"\\U0001f431\""
     value: { string_value: "\xf0\x9f\x90\xb1" }
   }
   test {
     name: "self_eval_ascii_escape_seq"
-    expr: '"\\a\\b\\f\\n\\r\\t\\v\\"\\\'\\\\"'
+    expr: "\"\\a\\b\\f\\n\\r\\t\\v\\\"\\\'\\\\\""
     value: { string_value: "\a\b\f\n\r\t\v\"'\\" }
   }
 }
@@ -199,7 +199,7 @@ section {
     name: "self_eval_bound_lookup"
     expr: "x"
     type_env: {
-      name: "x",
+      name: "x"
       ident: { type: { primitive: INT64 } }
     }
     bindings: {

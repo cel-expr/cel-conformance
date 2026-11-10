@@ -1,15 +1,2 @@
-# Bazel
-bazel-bin
-bazel-examples
-bazel-genfiles
-bazel-cel-conformance
-bazel-out
-bazel-testlogs
-
-# OS X
-.DS_Store
-
-*.swp
-*.lock
-
+bazel-*
 MODULE.bazel.lock

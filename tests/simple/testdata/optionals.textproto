@@ -363,14 +363,14 @@ section: {
     name: "list_optindex_value"
     expr: "['foo'][?0].value()"
     value: {
-        string_value: "foo"
+      string_value: "foo"
     }
   }
   test {
     name: "optional_list_optindex_value"
     expr: "optional.of(['foo'])[?0].value()"
     value: {
-        string_value: "foo"
+      string_value: "foo"
     }
   }
   test {

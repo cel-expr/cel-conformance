@@ -40,7 +40,7 @@ section: {
       bool_value: true
     }
   }
-    test: {
+  test: {
     name: "shadowing"
     expr: "cel.bind(x, 0, x == 0)"
     type_env: {

@@ -71,7 +71,7 @@ section {
     expr: "47.5 % 5.5"
     disable_check: true
     eval_error: {
-      errors: { message:"found no matching overload for '_%_' applied to '(double, double)'" }
+      errors: { message: "found no matching overload for '_%_' applied to '(double, double)'" }
     }
   }
   test {
@@ -102,7 +102,7 @@ section {
   test {
     name: "add_left_identity"
     expr: "0.0 + 1.75"
-    value: { double_value: 1.75}
+    value: { double_value: 1.75 }
   }
   test {
     name: "add_right_identity"
@@ -149,19 +149,19 @@ section {
     name: "fp_overflow_positive"
     description: "DBL_MAX(2^1023) times two"
     expr: "2.0 * 8.988466e+307 "
-    value: {double_value: inf}
+    value: { double_value: inf }
   }
   test {
     name: "fp_overflow_negative"
     description: "-DBL_MAX(-2^1023) times two"
     expr: "2.0 * -8.988466e+307 "
-    value: {double_value: -inf}
+    value: { double_value: -inf }
   }
   test {
     name: "fp_underflow"
     description: "DBL_MIN(2^-1074) divided by two"
     expr: "1e-324  / 2.0"
     ## Expect it to be the closest number to the exact result.
-    value: {double_value: 0}
+    value: { double_value: 0 }
   }
 }
