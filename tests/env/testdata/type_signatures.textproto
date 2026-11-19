@@ -1,0 +1,66 @@
+# proto-file: ../../../proto/cel/expr/conformance/test/env/suite.proto
+# proto-message: cel.expr.conformance.test.env.TestSuite
+
+name: "type_signatures"
+description: "Conformance tests for canonical CEL type signatures and aliases."
+
+sections {
+  name: "primitives"
+  description: "Canonical primitive types and aliases."
+
+  tests {
+    name: "bool"
+    description: "Canonical bool type."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: bool\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: bool\n"
+    }
+  }
+}
+
+sections {
+  name: "well_known_types"
+  description: "Canonical well-known types (timestamp, duration, dyn, any) and their protobuf aliases."
+
+  tests {
+    name: "timestamp"
+    description: "Canonical timestamp type."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: timestamp\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: timestamp\n"
+    }
+  }
+}
+
+sections {
+  name: "errors"
+  description: "Invalid type signatures."
+
+  tests {
+    name: "unterminated_map"
+    description: "Malformed map type signature missing value type and closing bracket."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: \"map<int,\"\n"
+    output {
+      eval_error {
+        errors {
+          message: "Invalid type signature"
+        }
+      }
+    }
+  }
+}
