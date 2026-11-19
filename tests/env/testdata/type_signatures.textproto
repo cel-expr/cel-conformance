@@ -1,0 +1,117 @@
+# proto-file: ../../../proto/cel/expr/conformance/test/env/suite.proto
+# proto-message: cel.expr.conformance.test.env.TestSuite
+
+name: "type_signatures"
+description: "Conformance tests for canonical CEL type signatures and aliases."
+
+sections {
+  name: "primitives"
+  description: "Canonical primitive types and aliases."
+
+  tests {
+    name: "bool"
+    description: "Canonical bool type."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: bool\n"
+    expr: "!x"
+    input {
+      key: "x"
+      value {
+        value {
+          bool_value: true
+        }
+      }
+    }
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: bool\n"
+      result_value {
+        bool_value: false
+      }
+    }
+  }
+}
+
+sections {
+  name: "timestamp"
+  description: "Canonical timestamp type and protobuf alias."
+
+  tests {
+    name: "timestamp"
+    description: "Canonical timestamp type."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: timestamp\n"
+    expr: "x + duration('1h')"
+    input {
+      key: "x"
+      value {
+        expr: "timestamp('2026-01-01T00:00:00Z')"
+      }
+    }
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: timestamp\n"
+      result_value {
+        object_value {
+          [type.googleapis.com/google.protobuf.Timestamp] {
+            seconds: 1767229200
+          }
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "timestamp_alias"
+    description: "Alias google.protobuf.Timestamp normalizes to timestamp."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: google.protobuf.Timestamp\n"
+    expr: "x + duration('1h')"
+    input {
+      key: "x"
+      value {
+        expr: "timestamp('2026-01-01T00:00:00Z')"
+      }
+    }
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: timestamp\n"
+      result_value {
+        object_value {
+          [type.googleapis.com/google.protobuf.Timestamp] {
+            seconds: 1767229200
+          }
+        }
+      }
+    }
+  }
+}
+
+sections {
+  name: "errors"
+  description: "Invalid type signatures."
+
+  tests {
+    name: "unterminated_map"
+    description: "Malformed map type signature missing value type and closing bracket."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: \"map<int,\"\n"
+    output {
+      errors: "Invalid type signature"
+    }
+  }
+}
