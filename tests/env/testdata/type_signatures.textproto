@@ -74,4 +74,17 @@ sections {
       errors: "Invalid type signature"
     }
   }
+
+  tests {
+    name: "duplicate_type_key"
+    description: "Duplicate type keys in a variable definition are rejected."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: bool\n"
+      "    type: int\n"
+    output {
+      errors: "Duplicate key 'type'"
+    }
+  }
 }
