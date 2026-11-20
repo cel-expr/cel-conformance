@@ -679,6 +679,138 @@ section {
       }
     }
   }
+  test {
+    name: "wrapper_ternary_parameter_assignment_3"
+    type_env {
+      name: "msg"
+      ident {
+        type {
+          message_type: "cel.expr.conformance.proto3.TestAllTypes"
+        }
+      }
+    }
+    expr: "false ? null : msg.single_int64_wrapper"
+    check_only: true
+    typed_result {
+      deduced_type {
+        wrapper: INT64
+      }
+    }
+  }
+  test {
+    name: "wrapper_ternary_parameter_assignment_4"
+    type_env {
+      name: "msg"
+      ident {
+        type {
+          message_type: "cel.expr.conformance.proto3.TestAllTypes"
+        }
+      }
+    }
+    expr: "true ? 42 : msg.single_int64_wrapper"
+    check_only: true
+    typed_result {
+      deduced_type {
+        wrapper: INT64
+      }
+    }
+  }
+  test {
+    name: "wrapper_promotion_3_elements"
+    type_env {
+      name: "msg"
+      ident {
+        type {
+          message_type: "cel.expr.conformance.proto3.TestAllTypes"
+        }
+      }
+    }
+    expr: "[msg.single_int64_wrapper, 1, null]"
+    check_only: true
+    typed_result {
+      deduced_type {
+        list_type {
+          elem_type {
+            wrapper: INT64
+          }
+        }
+      }
+    }
+  }
+  test {
+    name: "wrapper_promotion_3_elements_2"
+    type_env {
+      name: "msg"
+      ident {
+        type {
+          message_type: "cel.expr.conformance.proto3.TestAllTypes"
+        }
+      }
+    }
+    expr: "[1, msg.single_int64_wrapper, null]"
+    check_only: true
+    typed_result {
+      deduced_type {
+        list_type {
+          elem_type {
+            wrapper: INT64
+          }
+        }
+      }
+    }
+  }
+  test {
+    name: "wrapper_nested_list_promotion_3_elements"
+    type_env {
+      name: "msg"
+      ident {
+        type {
+          message_type: "cel.expr.conformance.proto3.TestAllTypes"
+        }
+      }
+    }
+    expr: "[[msg.single_int64_wrapper], [1], [null]]"
+    check_only: true
+    typed_result {
+      deduced_type {
+        list_type {
+          elem_type {
+            list_type {
+              elem_type {
+                wrapper: INT64
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  test {
+    name: "wrapper_nested_list_promotion_3_elements_2"
+    type_env {
+      name: "msg"
+      ident {
+        type {
+          message_type: "cel.expr.conformance.proto3.TestAllTypes"
+        }
+      }
+    }
+    expr: "[[1], [msg.single_int64_wrapper], [null]]"
+    check_only: true
+    typed_result {
+      deduced_type {
+        list_type {
+          elem_type {
+            list_type {
+              elem_type {
+                wrapper: INT64
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 section {
@@ -1351,6 +1483,538 @@ section {
             }
           }
         }
+      }
+    }
+  }
+}
+
+section {
+  name: "dyn_type_parameter_unification"
+  description:
+    "Tests that unifying dyn with parameterized types binds or widens inner "
+    "type parameters to dyn, and that asymmetric parameterized dyn joins "
+    "compute a sound least upper bound."
+  test {
+    name: "dyn_optional_or_value"
+    expr: "dyn(optional.of('foo')).orValue(1)"
+    check_only: true
+    typed_result {
+      deduced_type {
+        dyn {}
+      }
+    }
+  }
+  test {
+    name: "dyn_optional_nested_or_value_index"
+    expr: "dyn(optional.of(optional.of([2]))).orValue([1])[0]"
+    check_only: true
+    typed_result {
+      deduced_type {
+        dyn {}
+      }
+    }
+  }
+  test {
+    name: "dyn_optional_or_value_map_index"
+    expr: "dyn(optional.of(['a'])).orValue({0: 1})[0]"
+    check_only: true
+    typed_result {
+      deduced_type {
+        dyn {}
+      }
+    }
+  }
+  test {
+    name: "dyn_optional_or_value_optional_index"
+    expr: "dyn(optional.of([2])).orValue(optional.of([1]))[0]"
+    check_only: true
+    typed_result {
+      deduced_type {
+        dyn {}
+      }
+    }
+  }
+  test {
+    name: "dyn_optional_or_value_optindex"
+    expr: "dyn(optional.of(optional.of(['a']))).orValue([1])[?0]"
+    check_only: true
+    typed_result {
+      deduced_type {
+        abstract_type {
+          name: "optional_type"
+          parameter_types { dyn {} }
+        }
+      }
+    }
+  }
+  test {
+    name: "list_concat_dyn_rhs"
+    expr: "['a'] + dyn([1])"
+    typed_result {
+      result {
+        list_value {
+          values {
+            string_value: "a"
+          }
+          values {
+            int64_value: 1
+          }
+        }
+      }
+      deduced_type {
+        list_type {
+          elem_type { dyn {} }
+        }
+      }
+    }
+  }
+  test {
+    name: "list_concat_dyn_lhs"
+    expr: "dyn([1]) + ['a']"
+    typed_result {
+      result {
+        list_value {
+          values {
+            int64_value: 1
+          }
+          values {
+            string_value: "a"
+          }
+        }
+      }
+      deduced_type {
+        list_type {
+          elem_type { dyn {} }
+        }
+      }
+    }
+  }
+  test {
+    name: "dyn_optional_or_value_size"
+    expr: "dyn(optional.of('foo')).orValue(1).size()"
+    check_only: true
+    typed_result {
+      deduced_type {
+        primitive: INT64
+      }
+    }
+  }
+  test {
+    name: "ternary_asymmetric_dyn_maps"
+    expr: "false ? {dyn(1): 1} : {'b': dyn('c')}"
+    typed_result {
+      result {
+        map_value {
+          entries {
+            key { string_value: "b" }
+            value { string_value: "c" }
+          }
+        }
+      }
+      deduced_type {
+        map_type {
+          key_type { dyn {} }
+          value_type { dyn {} }
+        }
+      }
+    }
+  }
+  test {
+    name: "ternary_asymmetric_dyn_maps_reverse"
+    expr: "true ? {'b': dyn('c')} : {dyn(1): 1}"
+    typed_result {
+      result {
+        map_value {
+          entries {
+            key { string_value: "b" }
+            value { string_value: "c" }
+          }
+        }
+      }
+      deduced_type {
+        map_type {
+          key_type { dyn {} }
+          value_type { dyn {} }
+        }
+      }
+    }
+  }
+  test {
+    name: "optional_none_optmap_or_value"
+    expr: "optional.none().optMap(v, v).orValue('1')"
+    check_only: true
+    typed_result {
+      deduced_type {
+        primitive: STRING
+      }
+    }
+  }
+  test {
+    name: "dyn_optional_none_optmap_or_value"
+    expr: "dyn(optional.none()).optMap(v, v).orValue('1')"
+    check_only: true
+    typed_result {
+      deduced_type {
+        dyn {}
+      }
+    }
+  }
+  test {
+    name: "dyn_optional_of_optmap_or_value"
+    expr: "dyn(optional.of(1)).optMap(v, v).orValue('1')"
+    check_only: true
+    typed_result {
+      deduced_type {
+        dyn {}
+      }
+    }
+  }
+  test {
+    name: "optional_none_optflatmap_or_value"
+    expr: "optional.none().optFlatMap(v, optional.of(v)).orValue('1')"
+    check_only: true
+    typed_result {
+      deduced_type {
+        primitive: STRING
+      }
+    }
+  }
+  test {
+    name: "dyn_optional_of_optflatmap_or_value"
+    expr: "dyn(optional.of(1)).optFlatMap(v, optional.of(v)).orValue('1')"
+    check_only: true
+    typed_result {
+      deduced_type {
+        dyn {}
+      }
+    }
+  }
+  test {
+    name: "dyn_optional_nested_optflatmap_or_value"
+    expr: "dyn(optional.of(optional.of(1))).optFlatMap(v, v).orValue('1')"
+    check_only: true
+    typed_result {
+      deduced_type {
+        dyn {}
+      }
+    }
+  }
+  test {
+    name: "list_three_asymmetric_dyn_maps"
+    expr: "[{dyn(1): 1}, {'b': dyn('c')}, {'a': 1}]"
+    check_only: true
+    typed_result {
+      deduced_type {
+        list_type {
+          elem_type {
+            map_type {
+              key_type { dyn {} }
+              value_type { dyn {} }
+            }
+          }
+        }
+      }
+    }
+  }
+  test {
+    name: "dyn_optional_or"
+    expr: "dyn(optional.of('foo')).or(optional.of(1))"
+    check_only: true
+    typed_result {
+      deduced_type {
+        abstract_type {
+          name: "optional_type"
+          parameter_types { dyn {} }
+        }
+      }
+    }
+  }
+  test {
+    name: "optional_or_dyn"
+    expr: "optional.of(1).or(dyn(optional.of('foo')))"
+    check_only: true
+    typed_result {
+      deduced_type {
+        abstract_type {
+          name: "optional_type"
+          parameter_types { dyn {} }
+        }
+      }
+    }
+  }
+  test {
+    name: "optional_none_or_dyn"
+    expr: "optional.none().or(dyn(optional.of('foo')))"
+    check_only: true
+    typed_result {
+      deduced_type {
+        abstract_type {
+          name: "optional_type"
+          parameter_types { dyn {} }
+        }
+      }
+    }
+  }
+  test {
+    name: "dyn_optional_value"
+    expr: "dyn(optional.of('foo')).value()"
+    check_only: true
+    typed_result {
+      deduced_type {
+        dyn {}
+      }
+    }
+  }
+  test {
+    name: "type_param_in_type_type_dyn_arg"
+    check_only: true
+    expr: "first_elem_type('data', dyn(int))"
+    type_env {
+      name: "first_elem_type"
+      function {
+        overloads {
+          overload_id: "first_elem_type_list"
+          params { dyn {} }
+          params {
+            type {
+              list_type {
+                elem_type {
+                  type_param: "T"
+                }
+              }
+            }
+          }
+          result_type {
+            type_param: "T"
+          }
+        }
+      }
+    }
+    typed_result {
+      deduced_type {
+        dyn {}
+      }
+    }
+  }
+  test {
+    name: "dyn_upcast_preserves_bound_type_param"
+    expr: "[[]].map(xs, (xs == [1] && xs == dyn(1)) ? xs : xs)"
+    check_only: true
+    typed_result {
+      deduced_type {
+        list_type {
+          elem_type {
+            list_type {
+              elem_type { primitive: INT64 }
+            }
+          }
+        }
+      }
+    }
+  }
+  test {
+    name: "dyn_list_join_preserves_bound_type_param"
+    expr: "[[], [1]].map(xs, [dyn(1), xs].size() > 0 ? xs : xs)"
+    check_only: true
+    typed_result {
+      deduced_type {
+        list_type {
+          elem_type {
+            list_type {
+              elem_type { primitive: INT64 }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+section {
+  name: "any"
+  description:
+    "Tests type deduction for google.protobuf.Any joins and unification. "
+    "Homogeneous Any joins preserve Any; mixed joins with other types or dyn "
+    "widen to dyn."
+  test {
+    name: "any_list_homogeneous"
+    type_env {
+      name: "msg"
+      ident {
+        type {
+          message_type: "cel.expr.conformance.proto3.TestAllTypes"
+        }
+      }
+    }
+    expr: "[msg.single_any, msg.single_any]"
+    check_only: true
+    typed_result {
+      deduced_type {
+        list_type {
+          elem_type {
+            well_known: ANY
+          }
+        }
+      }
+    }
+  }
+  test {
+    name: "any_ternary_homogeneous"
+    type_env {
+      name: "msg"
+      ident {
+        type {
+          message_type: "cel.expr.conformance.proto3.TestAllTypes"
+        }
+      }
+    }
+    expr: "true ? msg.single_any : msg.single_any"
+    check_only: true
+    typed_result {
+      deduced_type {
+        well_known: ANY
+      }
+    }
+  }
+  test {
+    name: "any_list_mixed_int"
+    type_env {
+      name: "msg"
+      ident {
+        type {
+          message_type: "cel.expr.conformance.proto3.TestAllTypes"
+        }
+      }
+    }
+    expr: "[msg.single_any, 1]"
+    check_only: true
+    typed_result {
+      deduced_type {
+        list_type {
+          elem_type {
+            dyn {}
+          }
+        }
+      }
+    }
+  }
+  test {
+    name: "any_list_mixed_int_reverse"
+    type_env {
+      name: "msg"
+      ident {
+        type {
+          message_type: "cel.expr.conformance.proto3.TestAllTypes"
+        }
+      }
+    }
+    expr: "[1, msg.single_any]"
+    check_only: true
+    typed_result {
+      deduced_type {
+        list_type {
+          elem_type {
+            dyn {}
+          }
+        }
+      }
+    }
+  }
+  test {
+    name: "any_list_mixed_dyn"
+    type_env {
+      name: "msg"
+      ident {
+        type {
+          message_type: "cel.expr.conformance.proto3.TestAllTypes"
+        }
+      }
+    }
+    expr: "[msg.single_any, dyn(1)]"
+    check_only: true
+    typed_result {
+      deduced_type {
+        list_type {
+          elem_type {
+            dyn {}
+          }
+        }
+      }
+    }
+  }
+  test {
+    name: "any_list_mixed_dyn_reverse"
+    type_env {
+      name: "msg"
+      ident {
+        type {
+          message_type: "cel.expr.conformance.proto3.TestAllTypes"
+        }
+      }
+    }
+    expr: "[dyn(1), msg.single_any]"
+    check_only: true
+    typed_result {
+      deduced_type {
+        list_type {
+          elem_type {
+            dyn {}
+          }
+        }
+      }
+    }
+  }
+  test {
+    name: "any_ternary_mixed_int"
+    type_env {
+      name: "msg"
+      ident {
+        type {
+          message_type: "cel.expr.conformance.proto3.TestAllTypes"
+        }
+      }
+    }
+    expr: "true ? msg.single_any : 1"
+    check_only: true
+    typed_result {
+      deduced_type {
+        dyn {}
+      }
+    }
+  }
+  test {
+    name: "any_ternary_mixed_int_reverse"
+    type_env {
+      name: "msg"
+      ident {
+        type {
+          message_type: "cel.expr.conformance.proto3.TestAllTypes"
+        }
+      }
+    }
+    expr: "false ? 1 : msg.single_any"
+    check_only: true
+    typed_result {
+      deduced_type {
+        dyn {}
+      }
+    }
+  }
+  test {
+    name: "any_optional_or_value"
+    type_env {
+      name: "msg"
+      ident {
+        type {
+          message_type: "cel.expr.conformance.proto3.TestAllTypes"
+        }
+      }
+    }
+    expr: "msg.single_any.orValue(1)"
+    check_only: true
+    typed_result {
+      deduced_type {
+        dyn {}
       }
     }
   }
