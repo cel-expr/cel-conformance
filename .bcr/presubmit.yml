@@ -11,6 +11,6 @@ tasks:
     platform: ${{ platform }}
     bazel: ${{ bazel }}
     build_flags:
-      - '--incompatible_autoload_externally=proto_library,cc_proto_library,java_proto_library,py_proto_library'
+      - '--incompatible_autoload_externally=proto_library,cc_proto_library,java_proto_library'
     build_targets:
       - '@cel-conformance//...'

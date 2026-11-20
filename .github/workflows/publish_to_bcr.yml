@@ -2,27 +2,139 @@
 # See https://github.com/bazel-contrib/publish-to-bcr/tree/main/templates
 
 name: Publish to BCR
+
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       tag_name:
-        description: The release tag to publish
+        description: The release tag to publish (e.g. v0.1.0)
         required: true
         type: string
+
 permissions: {}
 
 jobs:
   publish:
-    uses: bazel-contrib/publish-to-bcr/.github/workflows/publish.yaml@748dc7186bc60d0e24a81ee30aba8aa543794767 # v1.0.0
-    with:
-      tag_name: ${{ inputs.tag_name || github.ref_name }}
-      attest: false
+    if: github.event_name != 'release' || !github.event.release.prerelease
+    runs-on: ubuntu-latest
     permissions:
       contents: write
-      id-token: write
-      attestations: write
-    secrets:
-      publish_token: ${{ secrets.BCR_PUBLISH_TOKEN }}
+    env:
+      REGISTRY: bazelbuild/bazel-central-registry
+      REGISTRY_BRANCH: main
+      REGISTRY_FORK: cel-expr/bazel-central-registry
+    steps:
+      - name: Resolve release tag
+        id: meta
+        env:
+          INPUT_TAG: ${{ inputs.tag_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          TAG_NAME="${INPUT_TAG:-${RELEASE_TAG}}"
+          if ! [[ "${TAG_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Tag must match vX.Y.Z (got: '${TAG_NAME}')"
+            exit 1
+          fi
+          echo "tag_name=${TAG_NAME}" >> "${GITHUB_OUTPUT}"
+          echo "version=${TAG_NAME#v}" >> "${GITHUB_OUTPUT}"
+
+      - name: Mint BCR fork token
+        id: app
+        uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc # v3.4.0
+        with:
+          client-id: ${{ secrets.BCR_APP_ID }}
+          private-key: ${{ secrets.BCR_APP_PRIVATE_KEY }}
+          owner: cel-expr
+          repositories: bazel-central-registry
+          permission-contents: write
+
+      - name: Checkout module repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ steps.meta.outputs.tag_name }}
+          path: this
+          persist-credentials: false
+
+      - name: Upload stable release tarball
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ steps.meta.outputs.tag_name }}
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          set -euo pipefail
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          TARBALL="${REPO_NAME}-${TAG_NAME}.tar.gz"
+          ASSETS=$(gh release view "${TAG_NAME}" --repo "${GITHUB_REPOSITORY}" --json assets --jq '.assets[].name')
+          if grep -Fxq "${TARBALL}" <<< "${ASSETS}"; then
+            echo "Release asset ${TARBALL} already exists; keeping existing archive."
+            exit 0
+          fi
+          git -C this archive --format=tar --prefix="${REPO_NAME}-${VERSION}/" HEAD | gzip -n > "${TARBALL}"
+          gh release upload "${TAG_NAME}" "${TARBALL}" --repo "${GITHUB_REPOSITORY}"
+
+      - name: Checkout BCR
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          repository: bazelbuild/bazel-central-registry
+          path: bazel-central-registry
+          persist-credentials: false
+
+      - name: Create BCR entry
+        id: create-entry
+        uses: bazel-contrib/publish-to-bcr@1ae09341a6014e9bea052879c42392ac6b8b632c # v1.7.0
+        with:
+          tag: ${{ steps.meta.outputs.tag_name }}
+          module-version: ${{ steps.meta.outputs.version }}
+          local-registry: bazel-central-registry
+          templates-dir: this/.bcr
+
+      - name: Push branch to BCR fork
+        id: push
+        working-directory: bazel-central-registry
+        env:
+          PUBLISH_TOKEN: ${{ steps.app.outputs.token }}
+          TAG_NAME: ${{ steps.meta.outputs.tag_name }}
+          MODULE_NAMES: ${{ steps.create-entry.outputs.module-names }}
+          SHORT_DESC: ${{ steps.create-entry.outputs.short-description }}
+          AUTHOR_NAME: ${{ github.actor }}
+          AUTHOR_EMAIL: ${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com
+        run: |
+          set -euo pipefail
+          BRANCH="${MODULE_NAMES}-${TAG_NAME}"
+          git checkout -b "${BRANCH}"
+          git add .
+          git -c "author.name=${AUTHOR_NAME}" \
+            -c "author.email=${AUTHOR_EMAIL}" \
+            -c "committer.name=github-actions[bot]" \
+            -c "committer.email=41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -m "${SHORT_DESC}"
+          AUTH_HEADER=$(printf 'x-access-token:%s' "${PUBLISH_TOKEN}" | base64 -w0)
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${AUTH_HEADER}" \
+            push --force "https://github.com/${REGISTRY_FORK}.git" "HEAD:refs/heads/${BRANCH}"
+          echo "branch=${BRANCH}" >> "${GITHUB_OUTPUT}"
+
+      - name: Output 1-click BCR PR link
+        env:
+          TAG_NAME: ${{ steps.meta.outputs.tag_name }}
+          BRANCH: ${{ steps.push.outputs.branch }}
+          TITLE_RAW: ${{ steps.create-entry.outputs.short-description }}
+        run: |
+          set -euo pipefail
+          FORK_OWNER="${REGISTRY_FORK%%/*}"
+          FORK_REPO="${REGISTRY_FORK##*/}"
+          BODY_RAW=$(printf 'Release: https://github.com/%s/releases/tag/%s\n\n_Automated by [Publish to BCR](https://github.com/bazel-contrib/publish-to-bcr)_' "${GITHUB_REPOSITORY}" "${TAG_NAME}")
+          TITLE=$(printf '%s' "${TITLE_RAW}" | jq -sRr @uri)
+          BODY=$(printf '%s' "${BODY_RAW}" | jq -sRr @uri)
+          PR_URL="https://github.com/${REGISTRY}/compare/${REGISTRY_BRANCH}...${FORK_OWNER}:${FORK_REPO}:${BRANCH}?title=${TITLE}&body=${BODY}&quick_pull=1"
+          echo "Create the BCR pull request by visiting:"
+          echo "${PR_URL}"
+          {
+            echo "### Publish to BCR"
+            echo ""
+            echo "Pushed branch \`${BRANCH}\` to \`${REGISTRY_FORK}\`."
+            echo ""
+            echo "[Open BCR Pull Request](${PR_URL})"
+          } >> "${GITHUB_STEP_SUMMARY}"
