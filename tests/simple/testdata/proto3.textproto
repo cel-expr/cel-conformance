@@ -802,6 +802,350 @@ section {
   }
 }
 section {
+  name: "numeric_field_types"
+  description: "Numeric fields, including wrappers, list elements, and map keys and values, only accept values of their CEL type (int, uint, or double), with no implicit conversions between them."
+  test {
+    name: "matching_uint32"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_uint32: dyn(1u)}.single_uint32 == 1u"
+    value: { bool_value: true }
+  }
+  test {
+    name: "matching_int32"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_int32: dyn(1)}.single_int32 == 1"
+    value: { bool_value: true }
+  }
+  test {
+    name: "matching_float"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_float: dyn(1.5)}.single_float == 1.5"
+    value: { bool_value: true }
+  }
+  test {
+    name: "matching_uint64_wrapper"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_uint64_wrapper: dyn(1u)}.single_uint64_wrapper == 1u"
+    value: { bool_value: true }
+  }
+  test {
+    name: "matching_repeated_uint64"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{repeated_uint64: dyn([1u])}.repeated_uint64 == [1u]"
+    value: { bool_value: true }
+  }
+  test {
+    name: "matching_map_uint64_key"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{map_uint64_bool: dyn({1u: true})}.map_uint64_bool == {1u: true}"
+    value: { bool_value: true }
+  }
+  test {
+    name: "int_to_uint32"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_uint32: dyn(1)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "int_to_uint64"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_uint64: dyn(1)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "uint_to_int32"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_int32: dyn(1u)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "uint_to_int64"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_int64: dyn(1u)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "double_to_int32"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_int32: dyn(1.0)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "double_to_int64"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_int64: dyn(1.0)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "double_to_uint32"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_uint32: dyn(1.0)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "double_to_uint64"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_uint64: dyn(1.0)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "int_to_float"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_float: dyn(1)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "int_to_double"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_double: dyn(1)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "uint_to_float"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_float: dyn(1u)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "uint_to_double"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_double: dyn(1u)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "uint_to_enum"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{standalone_enum: dyn(1u)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "double_to_enum"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{standalone_enum: dyn(1.0)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "int_to_uint32_wrapper"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_uint32_wrapper: dyn(1)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "int_to_uint64_wrapper"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_uint64_wrapper: dyn(1)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "uint_to_int32_wrapper"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_int32_wrapper: dyn(1u)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "uint_to_int64_wrapper"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_int64_wrapper: dyn(1u)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "double_to_int64_wrapper"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_int64_wrapper: dyn(1.0)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "int_to_float_wrapper"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_float_wrapper: dyn(1)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "int_to_double_wrapper"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{single_double_wrapper: dyn(1)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "int_to_repeated_uint64"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{repeated_uint64: dyn([1])}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "uint_to_repeated_int64"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{repeated_int64: dyn([1u])}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "double_to_repeated_int32"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{repeated_int32: dyn([1.0])}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "int_to_repeated_double"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{repeated_double: dyn([1])}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "mixed_to_repeated_uint64"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{repeated_uint64: dyn([1u, 2])}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "int_to_repeated_uint64_wrapper"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{repeated_uint64_wrapper: dyn([1])}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "int_to_map_uint32_key"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{map_uint32_bool: dyn({1: true})}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "int_to_map_uint64_key"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{map_uint64_bool: dyn({1: true})}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "uint_to_map_int32_key"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{map_int32_bool: dyn({1u: true})}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "uint_to_map_int64_key"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{map_int64_bool: dyn({1u: true})}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "int_to_map_uint64_value"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{map_bool_uint64: dyn({true: 1})}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "uint_to_map_int64_value"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{map_bool_int64: dyn({true: 1u})}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "int_to_map_double_value"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{map_bool_double: dyn({true: 1})}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "int_to_map_uint64_wrapper_value"
+    container: "cel.expr.conformance.proto3"
+    expr: "TestAllTypes{map_bool_uint64_wrapper: dyn({true: 1})}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "int_to_uint64_value_message"
+    container: "cel.expr.conformance.proto3"
+    expr: "google.protobuf.UInt64Value{value: dyn(1)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "uint_to_int32_value_message"
+    container: "cel.expr.conformance.proto3"
+    expr: "google.protobuf.Int32Value{value: dyn(1u)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+  test {
+    name: "int_to_double_value_message"
+    container: "cel.expr.conformance.proto3"
+    expr: "google.protobuf.DoubleValue{value: dyn(1)}"
+    eval_error: {
+      errors: { message: "type conversion error" }
+    }
+  }
+}
+section {
   name: "quoted_fields"
   test {
     name: "set_field"
