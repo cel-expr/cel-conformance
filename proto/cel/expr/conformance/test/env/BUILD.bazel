@@ -28,6 +28,7 @@ proto_library(
     srcs = ["suite.proto"],
     strip_import_prefix = "/proto",
     deps = [
+        "//proto/cel/expr/conformance/test:suite_proto",
         "@cel_spec//proto/cel/expr/conformance:env_config_proto",
     ],
 )

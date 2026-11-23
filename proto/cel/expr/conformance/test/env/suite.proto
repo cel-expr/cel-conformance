@@ -17,6 +17,7 @@ syntax = "proto3";
 package cel.expr.conformance.test.env;
 
 import "cel/expr/conformance/env_config.proto";
+import "cel/expr/conformance/test/suite.proto";
 
 option cc_enable_arenas = true;
 option go_package = "cel.dev/expr/conformance/test/env";
@@ -69,7 +70,14 @@ message TestCase {
     cel.expr.conformance.Environment env = 4;
   }
 
+  // Expected result of the environment configuration test case.
   TestOutput output = 5;
+
+  // Optional expression check and evaluation sub-tests to run against the
+  // configured environment. These sub-tests ensure that the elements of the
+  // environment configuration under test are consistently interpreted by the
+  // checker and evaluator across all conformant CEL stacks.
+  repeated cel.expr.conformance.test.TestCase expr_tests = 6;
 }
 
 // Expected result of the test case.
