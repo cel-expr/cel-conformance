@@ -21,6 +21,23 @@ sections {
         "  - name: x\n"
         "    type: bool\n"
     }
+    expr_tests {
+      name: "negation"
+      expr: "!x"
+      input {
+        key: "x"
+        value {
+          value {
+            bool_value: true
+          }
+        }
+      }
+      output {
+        result_value {
+          bool_value: false
+        }
+      }
+    }
   }
 }
 
@@ -41,6 +58,25 @@ sections {
         "  - name: x\n"
         "    type: timestamp\n"
     }
+    expr_tests {
+      name: "add_duration"
+      expr: "x + duration('1h')"
+      input {
+        key: "x"
+        value {
+          expr: "timestamp('2026-01-01T00:00:00Z')"
+        }
+      }
+      output {
+        result_value {
+          object_value {
+            [type.googleapis.com/google.protobuf.Timestamp] {
+              seconds: 1767229200
+            }
+          }
+        }
+      }
+    }
   }
 
   tests {
@@ -55,6 +91,25 @@ sections {
         "variables:\n"
         "  - name: x\n"
         "    type: timestamp\n"
+    }
+    expr_tests {
+      name: "add_duration"
+      expr: "x + duration('1h')"
+      input {
+        key: "x"
+        value {
+          expr: "timestamp('2026-01-01T00:00:00Z')"
+        }
+      }
+      output {
+        result_value {
+          object_value {
+            [type.googleapis.com/google.protobuf.Timestamp] {
+              seconds: 1767229200
+            }
+          }
+        }
+      }
     }
   }
 }
