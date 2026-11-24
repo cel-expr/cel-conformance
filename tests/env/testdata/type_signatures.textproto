@@ -15,28 +15,408 @@ sections {
       "variables:\n"
       "  - name: x\n"
       "    type: bool\n"
+      "    value: true\n"
     output {
       exported_env_yaml:
         "variables:\n"
         "  - name: x\n"
         "    type: bool\n"
+        "    value: true\n"
     }
     expr_tests {
-      name: "negation"
-      expr: "!x"
-      input {
-        key: "x"
-        value {
-          value {
-            bool_value: true
-          }
-        }
+      name: "default_value"
+      expr: "x"
+      deduced_type {
+        primitive: BOOL
       }
       output {
         result_value {
-          bool_value: false
+          bool_value: true
         }
       }
+    }
+  }
+
+  tests {
+    name: "int"
+    description: "Canonical int type."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: int\n"
+      "    value: 42\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: int\n"
+        "    value: 42\n"
+    }
+    expr_tests {
+      name: "default_value"
+      expr: "x"
+      deduced_type {
+        primitive: INT64
+      }
+      output {
+        result_value {
+          int64_value: 42
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "uint"
+    description: "Canonical uint type."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: uint\n"
+      "    value: 42\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: uint\n"
+        "    value: 42\n"
+    }
+    expr_tests {
+      name: "default_value"
+      expr: "x"
+      deduced_type {
+        primitive: UINT64
+      }
+      output {
+        result_value {
+          uint64_value: 42
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "negative_uint_value"
+    description: "Negative default value for a uint variable is rejected."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: uint\n"
+      "    value: -42\n"
+    output {
+      errors: "Failed to parse uint constant"
+    }
+  }
+
+  tests {
+    name: "double"
+    description: "Canonical double type."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: double\n"
+      "    value: 3.14\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: double\n"
+        "    value: 3.14\n"
+    }
+    expr_tests {
+      name: "default_value"
+      expr: "x"
+      deduced_type {
+        primitive: DOUBLE
+      }
+      output {
+        result_value {
+          double_value: 3.14
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "double_inf"
+    description: "Canonical double type with positive infinity default value."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: double\n"
+      "    value: .inf\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: double\n"
+        "    value: .inf\n"
+    }
+    expr_tests {
+      name: "default_value"
+      expr: "x"
+      deduced_type {
+        primitive: DOUBLE
+      }
+      output {
+        result_value {
+          double_value: inf
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "double_neg_inf"
+    description: "Canonical double type with negative infinity default value."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: double\n"
+      "    value: -.inf\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: double\n"
+        "    value: -.inf\n"
+    }
+    expr_tests {
+      name: "default_value"
+      expr: "x"
+      deduced_type {
+        primitive: DOUBLE
+      }
+      output {
+        result_value {
+          double_value: -inf
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "double_nan"
+    description: "Canonical double type with NaN default value."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: double\n"
+      "    value: .nan\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: double\n"
+        "    value: .nan\n"
+    }
+    expr_tests {
+      name: "default_value"
+      expr: "x"
+      deduced_type {
+        primitive: DOUBLE
+      }
+      output {
+        result_value {
+          double_value: nan
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "string"
+    description: "Canonical string type with escaping and multi-byte Unicode."
+    env_yaml:
+      "variables:\n"
+      "  - name: double_quoted\n"
+      "    type: string\n"
+      "    value: \"hello\\t\\\"world\\\" 'cel' \\\\\\r\\nÿ\\u270c\\U0001f431🐱\"\n"
+      "  - name: single_quoted\n"
+      "    type: string\n"
+      "    value: 'it''s \\raw\\n'\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: double_quoted\n"
+        "    type: string\n"
+        "    value: \"hello\\t\\\"world\\\" 'cel' \\\\\\r\\nÿ\\u270c\\U0001f431🐱\"\n"
+        "  - name: single_quoted\n"
+        "    type: string\n"
+        "    value: \"it's \\\\raw\\\\n\"\n"
+    }
+    expr_tests {
+      name: "double_quoted"
+      expr: "double_quoted"
+      deduced_type {
+        primitive: STRING
+      }
+      output {
+        result_value {
+          string_value: "hello\t\"world\" 'cel' \\\r\nÿ\xe2\x9c\x8c\xf0\x9f\x90\xb1\xf0\x9f\x90\xb1"
+        }
+      }
+    }
+    expr_tests {
+      name: "single_quoted"
+      expr: "single_quoted"
+      deduced_type {
+        primitive: STRING
+      }
+      output {
+        result_value {
+          string_value: "it's \\raw\\n"
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "string_multiline"
+    description: "Canonical string type with multi-line YAML block scalars."
+    env_yaml:
+      "variables:\n"
+      "  - name: folded\n"
+      "    type: string\n"
+      "    value: >-\n"
+      "      line one\n"
+      "      line two\n"
+      "\n"
+      "      paragraph two\n"
+      "  - name: literal\n"
+      "    type: string\n"
+      "    value: |\n"
+      "      line 1: \"quoted\" 'single' \\raw\n"
+      "      line 2: ÿ ✌ 🐱\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: folded\n"
+        "    type: string\n"
+        "    value: \"line one line two\\nparagraph two\"\n"
+        "  - name: literal\n"
+        "    type: string\n"
+        "    value: \"line 1: \\\"quoted\\\" 'single' \\\\raw\\nline 2: ÿ ✌ 🐱\\n\"\n"
+    }
+    expr_tests {
+      name: "folded"
+      expr: "folded"
+      deduced_type {
+        primitive: STRING
+      }
+      output {
+        result_value {
+          string_value: "line one line two\nparagraph two"
+        }
+      }
+    }
+    expr_tests {
+      name: "literal"
+      expr: "literal"
+      deduced_type {
+        primitive: STRING
+      }
+      output {
+        result_value {
+          string_value: "line 1: \"quoted\" 'single' \\raw\nline 2: ÿ \xe2\x9c\x8c \xf0\x9f\x90\xb1\n"
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "bytes"
+    description: "Canonical bytes type with plain, CEL literal, CEL raw literal, and !!binary YAML values."
+    env_yaml:
+      "variables:\n"
+      "  - name: binary\n"
+      "    type: bytes\n"
+      "    value: !!binary AAECBAgQIECA/w==\n"
+      "  - name: cel_literal\n"
+      "    type: bytes\n"
+      "    value: b\"\\xff\\000\\x01ÿ\"\n"
+      "  - name: plain\n"
+      "    type: bytes\n"
+      "    value: abc\n"
+      "  - name: raw_literal\n"
+      "    type: bytes\n"
+      "    value: rb\"\\x00\\n\"\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: binary\n"
+        "    type: bytes\n"
+        "    value: b\"\\x00\\x01\\x02\\x04\\x08\\x10\\x20\\x40\\x80\\xff\"\n"
+        "  - name: cel_literal\n"
+        "    type: bytes\n"
+        "    value: b\"\\xff\\x00\\x01\\xc3\\xbf\"\n"
+        "  - name: plain\n"
+        "    type: bytes\n"
+        "    value: b\"\\x61\\x62\\x63\"\n"
+        "  - name: raw_literal\n"
+        "    type: bytes\n"
+        "    value: b\"\\x5c\\x78\\x30\\x30\\x5c\\x6e\"\n"
+    }
+    expr_tests {
+      name: "binary"
+      expr: "binary"
+      deduced_type {
+        primitive: BYTES
+      }
+      output {
+        result_value {
+          bytes_value: "\x00\x01\x02\x04\x08\x10\x20\x40\x80\xff"
+        }
+      }
+    }
+    expr_tests {
+      name: "cel_literal"
+      expr: "cel_literal"
+      deduced_type {
+        primitive: BYTES
+      }
+      output {
+        result_value {
+          bytes_value: "\377\000\001\303\277"
+        }
+      }
+    }
+    expr_tests {
+      name: "plain"
+      expr: "plain"
+      deduced_type {
+        primitive: BYTES
+      }
+      output {
+        result_value {
+          bytes_value: "abc"
+        }
+      }
+    }
+    expr_tests {
+      name: "raw_literal"
+      expr: "raw_literal"
+      deduced_type {
+        primitive: BYTES
+      }
+      output {
+        result_value {
+          bytes_value: "\\x00\\n"
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "invalid_binary_bytes_value"
+    description: "Invalid Base64 in a !!binary default value for a bytes variable is rejected."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: bytes\n"
+      "    value: !!binary YWJj=\n"
+    output {
+      errors: "not a valid Base64 encoded binary"
     }
   }
 }
@@ -109,6 +489,1557 @@ sections {
             }
           }
         }
+      }
+    }
+  }
+}
+
+sections {
+  name: "duration"
+  description: "Canonical duration type and protobuf alias."
+
+  tests {
+    name: "duration"
+    description: "Canonical duration type."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: duration\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: duration\n"
+    }
+    expr_tests {
+      name: "add_duration"
+      expr: "x + duration('30m500ms')"
+      input {
+        key: "x"
+        value {
+          expr: "duration('1h30m')"
+        }
+      }
+      deduced_type {
+        well_known: DURATION
+      }
+      output {
+        result_value {
+          object_value {
+            [type.googleapis.com/google.protobuf.Duration] {
+              seconds: 7200
+              nanos: 500000000
+            }
+          }
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "duration_alias"
+    description: "Alias google.protobuf.Duration normalizes to duration."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: google.protobuf.Duration\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: duration\n"
+    }
+    expr_tests {
+      name: "add_duration"
+      expr: "x + duration('30m500ms')"
+      input {
+        key: "x"
+        value {
+          expr: "duration('1h30m')"
+        }
+      }
+      deduced_type {
+        well_known: DURATION
+      }
+      output {
+        result_value {
+          object_value {
+            [type.googleapis.com/google.protobuf.Duration] {
+              seconds: 7200
+              nanos: 500000000
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+sections {
+  name: "null"
+  description: "Canonical null type and aliases."
+
+  tests {
+    name: "null"
+    description: "Canonical null type."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: \"null\"\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: \"null\"\n"
+    }
+    expr_tests {
+      name: "default_value"
+      expr: "x"
+      deduced_type {
+        null: NULL_VALUE
+      }
+      output {
+        result_value {
+          null_value: NULL_VALUE
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "null_aliases"
+    description: "Aliases null_type and google.protobuf.NullValue normalize to null."
+    env_yaml:
+      "variables:\n"
+      "  - name: from_null_type\n"
+      "    type: null_type\n"
+      "  - name: from_null_value\n"
+      "    type: google.protobuf.NullValue\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: from_null_type\n"
+        "    type: \"null\"\n"
+        "  - name: from_null_value\n"
+        "    type: \"null\"\n"
+    }
+    expr_tests {
+      name: "from_null_type"
+      expr: "from_null_type"
+      deduced_type {
+        null: NULL_VALUE
+      }
+      output {
+        result_value {
+          null_value: NULL_VALUE
+        }
+      }
+    }
+    expr_tests {
+      name: "from_null_value"
+      expr: "from_null_value"
+      deduced_type {
+        null: NULL_VALUE
+      }
+      output {
+        result_value {
+          null_value: NULL_VALUE
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "non_empty_null_value"
+    description: "Non-empty default value for a null variable is rejected."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: \"null\"\n"
+      "    value: anything\n"
+    output {
+      errors: "Failed to parse null constant"
+    }
+  }
+}
+
+sections {
+  name: "list"
+  description: "Canonical list type, dyn element parameter, and protobuf alias."
+
+  tests {
+    name: "list"
+    description: "Basic and nested list type signatures."
+    env_yaml:
+      "variables:\n"
+      "  - name: basic\n"
+      "    type: \"list<int>\"\n"
+      "  - name: nested\n"
+      "    type: \"list<list<string>>\"\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: basic\n"
+        "    type: \"list<int>\"\n"
+        "  - name: nested\n"
+        "    type: \"list<list<string>>\"\n"
+    }
+    expr_tests {
+      name: "basic"
+      expr: "basic"
+      input {
+        key: "basic"
+        value {
+          expr: "[1, 2]"
+        }
+      }
+      deduced_type {
+        list_type {
+          elem_type {
+            primitive: INT64
+          }
+        }
+      }
+      output {
+        result_value {
+          list_value {
+            values {
+              int64_value: 1
+            }
+            values {
+              int64_value: 2
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "nested"
+      expr: "nested"
+      input {
+        key: "nested"
+        value {
+          expr: "[['a'], ['b']]"
+        }
+      }
+      deduced_type {
+        list_type {
+          elem_type {
+            list_type {
+              elem_type {
+                primitive: STRING
+              }
+            }
+          }
+        }
+      }
+      output {
+        result_value {
+          list_value {
+            values {
+              list_value {
+                values {
+                  string_value: "a"
+                }
+              }
+            }
+            values {
+              list_value {
+                values {
+                  string_value: "b"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "list_dyn"
+    description: "Bare list, list<dyn>, and google.protobuf.ListValue normalize to list<dyn>."
+    env_yaml:
+      "variables:\n"
+      "  - name: bare\n"
+      "    type: list\n"
+      "  - name: explicit_dyn\n"
+      "    type: \"list<dyn>\"\n"
+      "  - name: list_value_alias\n"
+      "    type: google.protobuf.ListValue\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: bare\n"
+        "    type: \"list<dyn>\"\n"
+        "  - name: explicit_dyn\n"
+        "    type: \"list<dyn>\"\n"
+        "  - name: list_value_alias\n"
+        "    type: \"list<dyn>\"\n"
+    }
+    expr_tests {
+      name: "bare"
+      expr: "bare"
+      input {
+        key: "bare"
+        value {
+          expr: "[1, 'two']"
+        }
+      }
+      deduced_type {
+        list_type {
+          elem_type {
+            dyn {}
+          }
+        }
+      }
+      output {
+        result_value {
+          list_value {
+            values {
+              int64_value: 1
+            }
+            values {
+              string_value: "two"
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "explicit_dyn"
+      expr: "explicit_dyn"
+      input {
+        key: "explicit_dyn"
+        value {
+          expr: "[1, 'two']"
+        }
+      }
+      deduced_type {
+        list_type {
+          elem_type {
+            dyn {}
+          }
+        }
+      }
+      output {
+        result_value {
+          list_value {
+            values {
+              int64_value: 1
+            }
+            values {
+              string_value: "two"
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "list_value_alias"
+      expr: "list_value_alias"
+      input {
+        key: "list_value_alias"
+        value {
+          expr: "[1, 'two']"
+        }
+      }
+      deduced_type {
+        list_type {
+          elem_type {
+            dyn {}
+          }
+        }
+      }
+      output {
+        result_value {
+          list_value {
+            values {
+              int64_value: 1
+            }
+            values {
+              string_value: "two"
+            }
+          }
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "list_too_many_params"
+    description: "List type signature with more than one type parameter is rejected."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: \"list<int, string>\"\n"
+    output {
+      errors: "list expects at most 1 parameter"
+    }
+  }
+}
+
+sections {
+  name: "map"
+  description: "Canonical map type, dyn parameters, and protobuf alias."
+
+  tests {
+    name: "map"
+    description: "Basic and nested map type signatures."
+    env_yaml:
+      "variables:\n"
+      "  - name: basic\n"
+      "    type: \"map<int, string>\"\n"
+      "  - name: nested\n"
+      "    type: \"map<string, list<int>>\"\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: basic\n"
+        "    type: \"map<int,string>\"\n"
+        "  - name: nested\n"
+        "    type: \"map<string,list<int>>\"\n"
+    }
+    expr_tests {
+      name: "basic"
+      expr: "basic"
+      input {
+        key: "basic"
+        value {
+          expr: "{1: 'one'}"
+        }
+      }
+      deduced_type {
+        map_type {
+          key_type {
+            primitive: INT64
+          }
+          value_type {
+            primitive: STRING
+          }
+        }
+      }
+      output {
+        result_value {
+          map_value {
+            entries {
+              key {
+                int64_value: 1
+              }
+              value {
+                string_value: "one"
+              }
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "nested"
+      expr: "nested"
+      input {
+        key: "nested"
+        value {
+          expr: "{'k': [42]}"
+        }
+      }
+      deduced_type {
+        map_type {
+          key_type {
+            primitive: STRING
+          }
+          value_type {
+            list_type {
+              elem_type {
+                primitive: INT64
+              }
+            }
+          }
+        }
+      }
+      output {
+        result_value {
+          map_value {
+            entries {
+              key {
+                string_value: "k"
+              }
+              value {
+                list_value {
+                  values {
+                    int64_value: 42
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "map_dyn"
+    description: "Bare map, dyn key/value parameters, and google.protobuf.Struct alias."
+    env_yaml:
+      "variables:\n"
+      "  - name: bare\n"
+      "    type: map\n"
+      "  - name: dyn_key\n"
+      "    type: \"map<dyn, string>\"\n"
+      "  - name: dyn_value\n"
+      "    type: \"map<string, dyn>\"\n"
+      "  - name: explicit_dyn\n"
+      "    type: \"map<dyn, dyn>\"\n"
+      "  - name: struct_alias\n"
+      "    type: google.protobuf.Struct\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: bare\n"
+        "    type: \"map<dyn,dyn>\"\n"
+        "  - name: dyn_key\n"
+        "    type: \"map<dyn,string>\"\n"
+        "  - name: dyn_value\n"
+        "    type: \"map<string,dyn>\"\n"
+        "  - name: explicit_dyn\n"
+        "    type: \"map<dyn,dyn>\"\n"
+        "  - name: struct_alias\n"
+        "    type: \"map<string,dyn>\"\n"
+    }
+    expr_tests {
+      name: "bare"
+      expr: "bare"
+      input {
+        key: "bare"
+        value {
+          expr: "{1: 'one', 'two': 2}"
+        }
+      }
+      deduced_type {
+        map_type {
+          key_type {
+            dyn {}
+          }
+          value_type {
+            dyn {}
+          }
+        }
+      }
+      output {
+        result_value {
+          map_value {
+            entries {
+              key {
+                int64_value: 1
+              }
+              value {
+                string_value: "one"
+              }
+            }
+            entries {
+              key {
+                string_value: "two"
+              }
+              value {
+                int64_value: 2
+              }
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "dyn_key"
+      expr: "dyn_key"
+      input {
+        key: "dyn_key"
+        value {
+          expr: "{1: 'one', 'two': 'two'}"
+        }
+      }
+      deduced_type {
+        map_type {
+          key_type {
+            dyn {}
+          }
+          value_type {
+            primitive: STRING
+          }
+        }
+      }
+      output {
+        result_value {
+          map_value {
+            entries {
+              key {
+                int64_value: 1
+              }
+              value {
+                string_value: "one"
+              }
+            }
+            entries {
+              key {
+                string_value: "two"
+              }
+              value {
+                string_value: "two"
+              }
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "dyn_value"
+      expr: "dyn_value"
+      input {
+        key: "dyn_value"
+        value {
+          expr: "{'a': 1, 'b': 'two'}"
+        }
+      }
+      deduced_type {
+        map_type {
+          key_type {
+            primitive: STRING
+          }
+          value_type {
+            dyn {}
+          }
+        }
+      }
+      output {
+        result_value {
+          map_value {
+            entries {
+              key {
+                string_value: "a"
+              }
+              value {
+                int64_value: 1
+              }
+            }
+            entries {
+              key {
+                string_value: "b"
+              }
+              value {
+                string_value: "two"
+              }
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "explicit_dyn"
+      expr: "explicit_dyn"
+      input {
+        key: "explicit_dyn"
+        value {
+          expr: "{1: 'one', 'two': 2}"
+        }
+      }
+      deduced_type {
+        map_type {
+          key_type {
+            dyn {}
+          }
+          value_type {
+            dyn {}
+          }
+        }
+      }
+      output {
+        result_value {
+          map_value {
+            entries {
+              key {
+                int64_value: 1
+              }
+              value {
+                string_value: "one"
+              }
+            }
+            entries {
+              key {
+                string_value: "two"
+              }
+              value {
+                int64_value: 2
+              }
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "struct_alias"
+      expr: "struct_alias"
+      input {
+        key: "struct_alias"
+        value {
+          expr: "{'a': 1, 'b': 'two'}"
+        }
+      }
+      deduced_type {
+        map_type {
+          key_type {
+            primitive: STRING
+          }
+          value_type {
+            dyn {}
+          }
+        }
+      }
+      output {
+        result_value {
+          map_value {
+            entries {
+              key {
+                string_value: "a"
+              }
+              value {
+                int64_value: 1
+              }
+            }
+            entries {
+              key {
+                string_value: "b"
+              }
+              value {
+                string_value: "two"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "map_wrong_param_count"
+    description: "Map type signature with a single type parameter is rejected."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: \"map<int>\"\n"
+    output {
+      errors: "map expects 0 or 2 parameters"
+    }
+  }
+}
+
+sections {
+  name: "message"
+  description: "Protobuf message (struct) types, including proto2, proto3, nested messages, and messages in containers."
+
+  tests {
+    name: "message"
+    description: "Fully-qualified proto2, proto3, and nested message type signatures."
+    env_yaml:
+      "variables:\n"
+      "  - name: proto2\n"
+      "    type: cel.expr.conformance.proto2.TestAllTypes\n"
+      "  - name: proto3\n"
+      "    type: cel.expr.conformance.proto3.TestAllTypes\n"
+      "  - name: proto3_nested\n"
+      "    type: cel.expr.conformance.proto3.TestAllTypes.NestedMessage\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: proto2\n"
+        "    type: cel.expr.conformance.proto2.TestAllTypes\n"
+        "  - name: proto3\n"
+        "    type: cel.expr.conformance.proto3.TestAllTypes\n"
+        "  - name: proto3_nested\n"
+        "    type: cel.expr.conformance.proto3.TestAllTypes.NestedMessage\n"
+    }
+    expr_tests {
+      name: "proto2"
+      expr: "proto2"
+      input {
+        key: "proto2"
+        value {
+          expr: "cel.expr.conformance.proto2.TestAllTypes{single_int64: 17}"
+        }
+      }
+      deduced_type {
+        message_type: "cel.expr.conformance.proto2.TestAllTypes"
+      }
+      output {
+        result_value {
+          object_value {
+            [type.googleapis.com/cel.expr.conformance.proto2.TestAllTypes] {
+              single_int64: 17
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "proto2_default_field"
+      expr: "proto2.single_string"
+      input {
+        key: "proto2"
+        value {
+          expr: "cel.expr.conformance.proto2.TestAllTypes{single_int64: 17}"
+        }
+      }
+      deduced_type {
+        primitive: STRING
+      }
+      output {
+        result_value {
+          string_value: "empty"
+        }
+      }
+    }
+    expr_tests {
+      name: "proto3"
+      expr: "proto3"
+      input {
+        key: "proto3"
+        value {
+          expr: "cel.expr.conformance.proto3.TestAllTypes{single_int64: 42, single_string: 'hello'}"
+        }
+      }
+      deduced_type {
+        message_type: "cel.expr.conformance.proto3.TestAllTypes"
+      }
+      output {
+        result_value {
+          object_value {
+            [type.googleapis.com/cel.expr.conformance.proto3.TestAllTypes] {
+              single_int64: 42
+              single_string: "hello"
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "proto3_nested"
+      expr: "proto3_nested"
+      input {
+        key: "proto3_nested"
+        value {
+          expr: "cel.expr.conformance.proto3.TestAllTypes.NestedMessage{bb: 7}"
+        }
+      }
+      deduced_type {
+        message_type: "cel.expr.conformance.proto3.TestAllTypes.NestedMessage"
+      }
+      output {
+        result_value {
+          object_value {
+            [type.googleapis.com/cel.expr.conformance.proto3.TestAllTypes.NestedMessage] {
+              bb: 7
+            }
+          }
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "message_in_collections"
+    description: "Protobuf message types as list and map type parameters."
+    env_yaml:
+      "variables:\n"
+      "  - name: list_of_messages\n"
+      "    type: \"list<cel.expr.conformance.proto3.TestAllTypes>\"\n"
+      "  - name: map_of_messages\n"
+      "    type: \"map<string, cel.expr.conformance.proto3.TestAllTypes.NestedMessage>\"\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: list_of_messages\n"
+        "    type: \"list<cel.expr.conformance.proto3.TestAllTypes>\"\n"
+        "  - name: map_of_messages\n"
+        "    type: \"map<string,cel.expr.conformance.proto3.TestAllTypes.NestedMessage>\"\n"
+    }
+    expr_tests {
+      name: "list_of_messages"
+      expr: "list_of_messages[0].single_int64"
+      input {
+        key: "list_of_messages"
+        value {
+          expr: "[cel.expr.conformance.proto3.TestAllTypes{single_int64: 42}]"
+        }
+      }
+      deduced_type {
+        primitive: INT64
+      }
+      output {
+        result_value {
+          int64_value: 42
+        }
+      }
+    }
+    expr_tests {
+      name: "map_of_messages"
+      expr: "map_of_messages['k'].bb"
+      input {
+        key: "map_of_messages"
+        value {
+          expr: "{'k': cel.expr.conformance.proto3.TestAllTypes.NestedMessage{bb: 7}}"
+        }
+      }
+      deduced_type {
+        primitive: INT64
+      }
+      output {
+        result_value {
+          int64_value: 7
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "message_with_container"
+    description: "Protobuf message type used with a container namespace."
+    env_yaml:
+      "container: cel.expr.conformance.proto3\n"
+      "variables:\n"
+      "  - name: x\n"
+      "    type: cel.expr.conformance.proto3.TestAllTypes\n"
+    output {
+      exported_env_yaml:
+        "container: cel.expr.conformance.proto3\n"
+        "variables:\n"
+        "  - name: x\n"
+        "    type: cel.expr.conformance.proto3.TestAllTypes\n"
+    }
+    expr_tests {
+      name: "unqualified_message_literal"
+      expr: "x == TestAllTypes{single_int64: 42, single_nested_message: TestAllTypes.NestedMessage{bb: 7}}"
+      input {
+        key: "x"
+        value {
+          expr: "TestAllTypes{single_int64: 42, single_nested_message: TestAllTypes.NestedMessage{bb: 7}}"
+        }
+      }
+      deduced_type {
+        primitive: BOOL
+      }
+      output {
+        result_value {
+          bool_value: true
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "unsupported_message_constant"
+    description: "Default constant value for a protobuf message variable is rejected."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: cel.expr.conformance.proto3.TestAllTypes\n"
+      "    value: \"{}\"\n"
+    output {
+      errors: "is not supported"
+    }
+  }
+
+  tests {
+    name: "unqualified_message_type_with_container"
+    description: "Unqualified message type in variable declaration does not resolve via container."
+    env_yaml:
+      "container: cel.expr.conformance.proto3\n"
+      "variables:\n"
+      "  - name: x\n"
+      "    type: TestAllTypes\n"
+    expr_tests {
+      name: "field_selection_fails"
+      expr: "x.single_int64"
+      output {
+        eval_error {
+          errors {
+            message: "expression of type 'TestAllTypes' cannot be the operand of a select operation"
+          }
+        }
+      }
+    }
+  }
+}
+
+sections {
+  name: "opaque"
+  description: "Opaque (abstract) types with and without type parameters."
+
+  tests {
+    name: "opaque"
+    description: "Custom opaque types with zero, one, and multiple nested type parameters."
+    env_yaml:
+      "variables:\n"
+      "  - name: basic\n"
+      "    type: my.pkg.OpaqueToken\n"
+      "  - name: one_param\n"
+      "    type: \"my.pkg.Box<int>\"\n"
+      "  - name: two_params\n"
+      "    type: \"my.pkg.Pair<string, list<int>>\"\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: basic\n"
+        "    type: my.pkg.OpaqueToken\n"
+        "  - name: one_param\n"
+        "    type: \"my.pkg.Box<int>\"\n"
+        "  - name: two_params\n"
+        "    type: \"my.pkg.Pair<string,list<int>>\"\n"
+    }
+    expr_tests {
+      name: "basic"
+      expr: "basic"
+      deduced_type {
+        abstract_type {
+          name: "my.pkg.OpaqueToken"
+        }
+      }
+    }
+    expr_tests {
+      name: "one_param"
+      expr: "one_param"
+      deduced_type {
+        abstract_type {
+          name: "my.pkg.Box"
+          parameter_types {
+            primitive: INT64
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "two_params"
+      expr: "two_params"
+      deduced_type {
+        abstract_type {
+          name: "my.pkg.Pair"
+          parameter_types {
+            primitive: STRING
+          }
+          parameter_types {
+            list_type {
+              elem_type {
+                primitive: INT64
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "optional_type"
+    description: "Standard parameterized opaque type optional_type with primitive, dyn, collection, message, and nested optional parameters."
+    env_yaml:
+      "extensions:\n"
+      "  - name: optional\n"
+      "    version: latest\n"
+      "variables:\n"
+      "  - name: opt_dyn\n"
+      "    type: \"optional_type<dyn>\"\n"
+      "  - name: opt_int\n"
+      "    type: \"optional_type<int>\"\n"
+      "  - name: opt_list\n"
+      "    type: \"optional_type<list<string>>\"\n"
+      "  - name: opt_msg\n"
+      "    type: \"optional_type<cel.expr.conformance.proto3.TestAllTypes>\"\n"
+      "  - name: opt_nested\n"
+      "    type: \"optional_type<optional_type<int>>\"\n"
+    output {
+      exported_env_yaml:
+        "extensions:\n"
+        "  - name: optional\n"
+        "    version: latest\n"
+        "variables:\n"
+        "  - name: opt_dyn\n"
+        "    type: \"optional_type<dyn>\"\n"
+        "  - name: opt_int\n"
+        "    type: \"optional_type<int>\"\n"
+        "  - name: opt_list\n"
+        "    type: \"optional_type<list<string>>\"\n"
+        "  - name: opt_msg\n"
+        "    type: \"optional_type<cel.expr.conformance.proto3.TestAllTypes>\"\n"
+        "  - name: opt_nested\n"
+        "    type: \"optional_type<optional_type<int>>\"\n"
+    }
+    expr_tests {
+      name: "opt_dyn_type"
+      expr: "opt_dyn"
+      deduced_type {
+        abstract_type {
+          name: "optional_type"
+          parameter_types {
+            dyn {}
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "opt_dyn_or_value"
+      expr: "opt_dyn.orValue('fallback')"
+      input {
+        key: "opt_dyn"
+        value {
+          expr: "optional.of(42)"
+        }
+      }
+      deduced_type {
+        dyn {}
+      }
+      output {
+        result_value {
+          int64_value: 42
+        }
+      }
+    }
+    expr_tests {
+      name: "opt_int_type"
+      expr: "opt_int"
+      deduced_type {
+        abstract_type {
+          name: "optional_type"
+          parameter_types {
+            primitive: INT64
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "opt_int_present"
+      expr: "opt_int.orValue(0)"
+      input {
+        key: "opt_int"
+        value {
+          expr: "optional.of(42)"
+        }
+      }
+      deduced_type {
+        primitive: INT64
+      }
+      output {
+        result_value {
+          int64_value: 42
+        }
+      }
+    }
+    expr_tests {
+      name: "opt_int_none"
+      expr: "opt_int.orValue(0)"
+      input {
+        key: "opt_int"
+        value {
+          expr: "optional.none()"
+        }
+      }
+      deduced_type {
+        primitive: INT64
+      }
+      output {
+        result_value {
+          int64_value: 0
+        }
+      }
+    }
+    expr_tests {
+      name: "opt_list_type"
+      expr: "opt_list"
+      deduced_type {
+        abstract_type {
+          name: "optional_type"
+          parameter_types {
+            list_type {
+              elem_type {
+                primitive: STRING
+              }
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "opt_list_eval"
+      expr: "opt_list.orValue(['default'])[0]"
+      input {
+        key: "opt_list"
+        value {
+          expr: "optional.of(['hello'])"
+        }
+      }
+      deduced_type {
+        primitive: STRING
+      }
+      output {
+        result_value {
+          string_value: "hello"
+        }
+      }
+    }
+    expr_tests {
+      name: "opt_msg_type"
+      expr: "opt_msg"
+      deduced_type {
+        abstract_type {
+          name: "optional_type"
+          parameter_types {
+            message_type: "cel.expr.conformance.proto3.TestAllTypes"
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "opt_msg_select_present"
+      expr: "opt_msg.?single_int64.orValue(-1)"
+      input {
+        key: "opt_msg"
+        value {
+          expr: "optional.of(cel.expr.conformance.proto3.TestAllTypes{single_int64: 42})"
+        }
+      }
+      deduced_type {
+        primitive: INT64
+      }
+      output {
+        result_value {
+          int64_value: 42
+        }
+      }
+    }
+    expr_tests {
+      name: "opt_msg_select_none"
+      expr: "opt_msg.?single_int64.orValue(-1)"
+      input {
+        key: "opt_msg"
+        value {
+          expr: "optional.none()"
+        }
+      }
+      deduced_type {
+        primitive: INT64
+      }
+      output {
+        result_value {
+          int64_value: -1
+        }
+      }
+    }
+    expr_tests {
+      name: "opt_nested_type"
+      expr: "opt_nested"
+      deduced_type {
+        abstract_type {
+          name: "optional_type"
+          parameter_types {
+            abstract_type {
+              name: "optional_type"
+              parameter_types {
+                primitive: INT64
+              }
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "opt_nested_eval"
+      expr: "opt_nested.orValue(optional.of(0)).orValue(-1)"
+      input {
+        key: "opt_nested"
+        value {
+          expr: "optional.of(optional.of(7))"
+        }
+      }
+      deduced_type {
+        primitive: INT64
+      }
+      output {
+        result_value {
+          int64_value: 7
+        }
+      }
+    }
+  }
+}
+
+sections {
+  name: "wrappers"
+  description: "Canonical wrapper types and protobuf well-known wrapper aliases."
+
+  tests {
+    name: "wrappers"
+    description: "Canonical wrapper type signatures for all primitive types."
+    env_yaml:
+      "variables:\n"
+      "  - name: w_bool\n"
+      "    type: bool_wrapper\n"
+      "  - name: w_bytes\n"
+      "    type: bytes_wrapper\n"
+      "  - name: w_double\n"
+      "    type: double_wrapper\n"
+      "  - name: w_int\n"
+      "    type: int_wrapper\n"
+      "  - name: w_string\n"
+      "    type: string_wrapper\n"
+      "  - name: w_uint\n"
+      "    type: uint_wrapper\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: w_bool\n"
+        "    type: bool_wrapper\n"
+        "  - name: w_bytes\n"
+        "    type: bytes_wrapper\n"
+        "  - name: w_double\n"
+        "    type: double_wrapper\n"
+        "  - name: w_int\n"
+        "    type: int_wrapper\n"
+        "  - name: w_string\n"
+        "    type: string_wrapper\n"
+        "  - name: w_uint\n"
+        "    type: uint_wrapper\n"
+    }
+    expr_tests {
+      name: "bool_wrapper"
+      expr: "w_bool"
+      input {
+        key: "w_bool"
+        value {
+          expr: "true"
+        }
+      }
+      deduced_type {
+        wrapper: BOOL
+      }
+      output {
+        result_value {
+          bool_value: true
+        }
+      }
+    }
+    expr_tests {
+      name: "bool_wrapper_null"
+      expr: "w_bool"
+      input {
+        key: "w_bool"
+        value {
+          expr: "null"
+        }
+      }
+      deduced_type {
+        wrapper: BOOL
+      }
+      output {
+        result_value {
+          null_value: NULL_VALUE
+        }
+      }
+    }
+    expr_tests {
+      name: "int_wrapper"
+      expr: "w_int"
+      input {
+        key: "w_int"
+        value {
+          expr: "42"
+        }
+      }
+      deduced_type {
+        wrapper: INT64
+      }
+      output {
+        result_value {
+          int64_value: 42
+        }
+      }
+    }
+    expr_tests {
+      name: "uint_wrapper"
+      expr: "w_uint"
+      input {
+        key: "w_uint"
+        value {
+          expr: "42u"
+        }
+      }
+      deduced_type {
+        wrapper: UINT64
+      }
+      output {
+        result_value {
+          uint64_value: 42
+        }
+      }
+    }
+    expr_tests {
+      name: "double_wrapper"
+      expr: "w_double"
+      input {
+        key: "w_double"
+        value {
+          expr: "3.14"
+        }
+      }
+      deduced_type {
+        wrapper: DOUBLE
+      }
+      output {
+        result_value {
+          double_value: 3.14
+        }
+      }
+    }
+    expr_tests {
+      name: "string_wrapper"
+      expr: "w_string"
+      input {
+        key: "w_string"
+        value {
+          expr: "'hello'"
+        }
+      }
+      deduced_type {
+        wrapper: STRING
+      }
+      output {
+        result_value {
+          string_value: "hello"
+        }
+      }
+    }
+    expr_tests {
+      name: "bytes_wrapper"
+      expr: "w_bytes"
+      input {
+        key: "w_bytes"
+        value {
+          expr: "b'abc'"
+        }
+      }
+      deduced_type {
+        wrapper: BYTES
+      }
+      output {
+        result_value {
+          bytes_value: "abc"
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "wrapper_aliases"
+    description: "Protobuf well-known wrapper aliases normalize to canonical wrapper types."
+    env_yaml:
+      "variables:\n"
+      "  - name: bool_val\n"
+      "    type: google.protobuf.BoolValue\n"
+      "  - name: bytes_val\n"
+      "    type: google.protobuf.BytesValue\n"
+      "  - name: double_val\n"
+      "    type: google.protobuf.DoubleValue\n"
+      "  - name: float_val\n"
+      "    type: google.protobuf.FloatValue\n"
+      "  - name: int32_val\n"
+      "    type: google.protobuf.Int32Value\n"
+      "  - name: int64_val\n"
+      "    type: google.protobuf.Int64Value\n"
+      "  - name: string_val\n"
+      "    type: google.protobuf.StringValue\n"
+      "  - name: uint32_val\n"
+      "    type: google.protobuf.UInt32Value\n"
+      "  - name: uint64_val\n"
+      "    type: google.protobuf.UInt64Value\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: bool_val\n"
+        "    type: bool_wrapper\n"
+        "  - name: bytes_val\n"
+        "    type: bytes_wrapper\n"
+        "  - name: double_val\n"
+        "    type: double_wrapper\n"
+        "  - name: float_val\n"
+        "    type: double_wrapper\n"
+        "  - name: int32_val\n"
+        "    type: int_wrapper\n"
+        "  - name: int64_val\n"
+        "    type: int_wrapper\n"
+        "  - name: string_val\n"
+        "    type: string_wrapper\n"
+        "  - name: uint32_val\n"
+        "    type: uint_wrapper\n"
+        "  - name: uint64_val\n"
+        "    type: uint_wrapper\n"
+    }
+    expr_tests {
+      name: "bool_value"
+      expr: "bool_val"
+      deduced_type {
+        wrapper: BOOL
+      }
+    }
+    expr_tests {
+      name: "int64_value"
+      expr: "int64_val"
+      deduced_type {
+        wrapper: INT64
+      }
+    }
+    expr_tests {
+      name: "int32_value"
+      expr: "int32_val"
+      deduced_type {
+        wrapper: INT64
+      }
+    }
+    expr_tests {
+      name: "uint64_value"
+      expr: "uint64_val"
+      deduced_type {
+        wrapper: UINT64
+      }
+    }
+    expr_tests {
+      name: "uint32_value"
+      expr: "uint32_val"
+      deduced_type {
+        wrapper: UINT64
+      }
+    }
+    expr_tests {
+      name: "double_value"
+      expr: "double_val"
+      deduced_type {
+        wrapper: DOUBLE
+      }
+    }
+    expr_tests {
+      name: "float_value"
+      expr: "float_val"
+      deduced_type {
+        wrapper: DOUBLE
+      }
+    }
+    expr_tests {
+      name: "string_value"
+      expr: "string_val"
+      deduced_type {
+        wrapper: STRING
+      }
+    }
+    expr_tests {
+      name: "bytes_value"
+      expr: "bytes_val"
+      deduced_type {
+        wrapper: BYTES
       }
     }
   }
