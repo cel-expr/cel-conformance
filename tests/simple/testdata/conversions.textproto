@@ -218,8 +218,14 @@ section {
   }
   test {
     name: "double_int_min_range"
-    description: "The double(-2^63) cast produces a floating point value outside the int range"
+    description: "The double -2^63 is exactly the minimum int."
     expr: "int(-9223372036854775808.0)"
+    value: { int64_value: -9223372036854775808 }
+  }
+  test {
+    name: "double_below_int_min_range"
+    description: "The next double below -2^63 is outside the int range."
+    expr: "int(-9223372036854777856.0)"
     eval_error {
       errors: { message: "range" }
     }
@@ -489,8 +495,28 @@ section {
   }
   test {
     name: "double_uint_max_range"
-    description: "The exact conversion of uint max as a double does not round trip."
-    expr: "int(18446744073709551615.0)"
+    description: "The double nearest uint max is 2^64, outside the uint range."
+    expr: "uint(18446744073709551615.0)"
+    eval_error {
+      errors: { message: "range" }
+    }
+  }
+  test {
+    name: "double_neg_zero"
+    expr: "uint(-0.0)"
+    value: { uint64_value: 0 }
+  }
+  test {
+    name: "double_neg_fraction"
+    description: "A negative input is out of range even when it truncates to zero."
+    expr: "uint(-0.5)"
+    eval_error {
+      errors: { message: "range" }
+    }
+  }
+  test {
+    name: "double_neg"
+    expr: "uint(-1.0)"
     eval_error {
       errors: { message: "range" }
     }
