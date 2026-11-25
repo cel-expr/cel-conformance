@@ -20,7 +20,7 @@ import "cel/expr/conformance/env_config.proto";
 import "cel/expr/conformance/test/suite.proto";
 
 option cc_enable_arenas = true;
-option go_package = "cel.dev/expr/conformance/test/env";
+option go_package = "github.com/cel-expr/cel-conformance/test/env";
 option java_multiple_files = true;
 option java_outer_classname = "SuiteProto";
 option java_package = "dev.cel.expr.conformance.test.env";
