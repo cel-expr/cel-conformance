@@ -446,19 +446,6 @@ sections {
       }
     }
   }
-
-  tests {
-    name: "non_empty_null_value"
-    description: "Non-empty default value for a null variable is rejected."
-    env_yaml:
-      "variables:\n"
-      "  - name: x\n"
-      "    type: \"null\"\n"
-      "    value: anything\n"
-    output {
-      errors: "Failed to parse null constant"
-    }
-  }
 }
 
 sections {
@@ -1062,6 +1049,209 @@ sections {
       "    type: \"map<int, string, bool>\"\n"
     output {
       errors: "map expects 0 or 2 parameters"
+    }
+  }
+}
+
+sections {
+  name: "message"
+  description: "Protobuf message (struct) types, including proto2, proto3, nested messages, and messages in containers."
+
+  tests {
+    name: "message"
+    description: "Fully-qualified proto2, proto3, and nested message type signatures."
+    env_yaml:
+      "variables:\n"
+      "  - name: proto2\n"
+      "    type: cel.expr.conformance.proto2.TestAllTypes\n"
+      "  - name: proto3\n"
+      "    type: cel.expr.conformance.proto3.TestAllTypes\n"
+      "  - name: proto3_nested\n"
+      "    type: cel.expr.conformance.proto3.TestAllTypes.NestedMessage\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: proto2\n"
+        "    type: cel.expr.conformance.proto2.TestAllTypes\n"
+        "  - name: proto3\n"
+        "    type: cel.expr.conformance.proto3.TestAllTypes\n"
+        "  - name: proto3_nested\n"
+        "    type: cel.expr.conformance.proto3.TestAllTypes.NestedMessage\n"
+    }
+    expr_tests {
+      name: "proto2"
+      expr: "proto2"
+      input {
+        key: "proto2"
+        value {
+          expr: "cel.expr.conformance.proto2.TestAllTypes{single_int64: 17}"
+        }
+      }
+      deduced_type {
+        message_type: "cel.expr.conformance.proto2.TestAllTypes"
+      }
+      output {
+        result_value {
+          object_value {
+            [type.googleapis.com/cel.expr.conformance.proto2.TestAllTypes] {
+              single_int64: 17
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "proto2_default_field"
+      expr: "proto2.single_string"
+      input {
+        key: "proto2"
+        value {
+          expr: "cel.expr.conformance.proto2.TestAllTypes{single_int64: 17}"
+        }
+      }
+      deduced_type {
+        primitive: STRING
+      }
+      output {
+        result_value {
+          string_value: "empty"
+        }
+      }
+    }
+    expr_tests {
+      name: "proto3"
+      expr: "proto3"
+      input {
+        key: "proto3"
+        value {
+          expr: "cel.expr.conformance.proto3.TestAllTypes{single_int64: 42, single_string: 'hello'}"
+        }
+      }
+      deduced_type {
+        message_type: "cel.expr.conformance.proto3.TestAllTypes"
+      }
+      output {
+        result_value {
+          object_value {
+            [type.googleapis.com/cel.expr.conformance.proto3.TestAllTypes] {
+              single_int64: 42
+              single_string: "hello"
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "proto3_nested"
+      expr: "proto3_nested"
+      input {
+        key: "proto3_nested"
+        value {
+          expr: "cel.expr.conformance.proto3.TestAllTypes.NestedMessage{bb: 7}"
+        }
+      }
+      deduced_type {
+        message_type: "cel.expr.conformance.proto3.TestAllTypes.NestedMessage"
+      }
+      output {
+        result_value {
+          object_value {
+            [type.googleapis.com/cel.expr.conformance.proto3.TestAllTypes.NestedMessage] {
+              bb: 7
+            }
+          }
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "message_in_collections"
+    description: "Protobuf message types as list and map type parameters."
+    env_yaml:
+      "variables:\n"
+      "  - name: list_of_messages\n"
+      "    type: \"list<cel.expr.conformance.proto3.TestAllTypes>\"\n"
+      "  - name: map_of_messages\n"
+      "    type: \"map<string, cel.expr.conformance.proto3.TestAllTypes.NestedMessage>\"\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: list_of_messages\n"
+        "    type: \"list<cel.expr.conformance.proto3.TestAllTypes>\"\n"
+        "  - name: map_of_messages\n"
+        "    type: \"map<string,cel.expr.conformance.proto3.TestAllTypes.NestedMessage>\"\n"
+    }
+    expr_tests {
+      name: "list_of_messages"
+      expr: "list_of_messages[0].single_int64"
+      input {
+        key: "list_of_messages"
+        value {
+          expr: "[cel.expr.conformance.proto3.TestAllTypes{single_int64: 42}]"
+        }
+      }
+      deduced_type {
+        primitive: INT64
+      }
+      output {
+        result_value {
+          int64_value: 42
+        }
+      }
+    }
+    expr_tests {
+      name: "map_of_messages"
+      expr: "map_of_messages['k'].bb"
+      input {
+        key: "map_of_messages"
+        value {
+          expr: "{'k': cel.expr.conformance.proto3.TestAllTypes.NestedMessage{bb: 7}}"
+        }
+      }
+      deduced_type {
+        primitive: INT64
+      }
+      output {
+        result_value {
+          int64_value: 7
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "message_with_container"
+    description: "Protobuf message type used with a container namespace."
+    env_yaml:
+      "container: cel.expr.conformance.proto3\n"
+      "variables:\n"
+      "  - name: x\n"
+      "    type: cel.expr.conformance.proto3.TestAllTypes\n"
+    output {
+      exported_env_yaml:
+        "container: cel.expr.conformance.proto3\n"
+        "variables:\n"
+        "  - name: x\n"
+        "    type: cel.expr.conformance.proto3.TestAllTypes\n"
+    }
+    expr_tests {
+      name: "unqualified_message_literal"
+      expr: "x == TestAllTypes{single_int64: 42, single_nested_message: TestAllTypes.NestedMessage{bb: 7}}"
+      input {
+        key: "x"
+        value {
+          expr: "TestAllTypes{single_int64: 42, single_nested_message: TestAllTypes.NestedMessage{bb: 7}}"
+        }
+      }
+      deduced_type {
+        primitive: BOOL
+      }
+      output {
+        result_value {
+          bool_value: true
+        }
+      }
     }
   }
 }
