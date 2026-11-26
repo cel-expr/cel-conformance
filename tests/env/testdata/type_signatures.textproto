@@ -293,6 +293,87 @@ sections {
 }
 
 sections {
+  name: "duration"
+  description: "Canonical duration type and protobuf alias."
+
+  tests {
+    name: "duration"
+    description: "Canonical duration type."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: duration\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: duration\n"
+    }
+    expr_tests {
+      name: "add_duration"
+      expr: "x + duration('30m500ms')"
+      input {
+        key: "x"
+        value {
+          expr: "duration('1h30m')"
+        }
+      }
+      deduced_type {
+        well_known: DURATION
+      }
+      output {
+        result_value {
+          object_value {
+            [type.googleapis.com/google.protobuf.Duration] {
+              seconds: 7200
+              nanos: 500000000
+            }
+          }
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "duration_alias"
+    description: "Alias google.protobuf.Duration normalizes to duration."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: google.protobuf.Duration\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: duration\n"
+    }
+    expr_tests {
+      name: "add_duration"
+      expr: "x + duration('30m500ms')"
+      input {
+        key: "x"
+        value {
+          expr: "duration('1h30m')"
+        }
+      }
+      deduced_type {
+        well_known: DURATION
+      }
+      output {
+        result_value {
+          object_value {
+            [type.googleapis.com/google.protobuf.Duration] {
+              seconds: 7200
+              nanos: 500000000
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+sections {
   name: "errors"
   description: "Invalid type signatures."
 
