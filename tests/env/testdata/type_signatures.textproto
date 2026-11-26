@@ -462,6 +462,611 @@ sections {
 }
 
 sections {
+  name: "list"
+  description: "Canonical list type, dyn element parameter, and protobuf alias."
+
+  tests {
+    name: "list"
+    description: "Basic and nested list type signatures."
+    env_yaml:
+      "variables:\n"
+      "  - name: basic\n"
+      "    type: \"list<int>\"\n"
+      "  - name: nested\n"
+      "    type: \"list<list<string>>\"\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: basic\n"
+        "    type: \"list<int>\"\n"
+        "  - name: nested\n"
+        "    type: \"list<list<string>>\"\n"
+    }
+    expr_tests {
+      name: "basic"
+      expr: "basic"
+      input {
+        key: "basic"
+        value {
+          expr: "[1, 2]"
+        }
+      }
+      deduced_type {
+        list_type {
+          elem_type {
+            primitive: INT64
+          }
+        }
+      }
+      output {
+        result_value {
+          list_value {
+            values {
+              int64_value: 1
+            }
+            values {
+              int64_value: 2
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "nested"
+      expr: "nested"
+      input {
+        key: "nested"
+        value {
+          expr: "[['a'], ['b']]"
+        }
+      }
+      deduced_type {
+        list_type {
+          elem_type {
+            list_type {
+              elem_type {
+                primitive: STRING
+              }
+            }
+          }
+        }
+      }
+      output {
+        result_value {
+          list_value {
+            values {
+              list_value {
+                values {
+                  string_value: "a"
+                }
+              }
+            }
+            values {
+              list_value {
+                values {
+                  string_value: "b"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "list_dyn"
+    description: "Bare list, list<dyn>, and google.protobuf.ListValue normalize to list<dyn>."
+    env_yaml:
+      "variables:\n"
+      "  - name: bare\n"
+      "    type: list\n"
+      "  - name: explicit_dyn\n"
+      "    type: \"list<dyn>\"\n"
+      "  - name: list_value_alias\n"
+      "    type: google.protobuf.ListValue\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: bare\n"
+        "    type: \"list<dyn>\"\n"
+        "  - name: explicit_dyn\n"
+        "    type: \"list<dyn>\"\n"
+        "  - name: list_value_alias\n"
+        "    type: \"list<dyn>\"\n"
+    }
+    expr_tests {
+      name: "bare"
+      expr: "bare"
+      input {
+        key: "bare"
+        value {
+          expr: "[1, 'two']"
+        }
+      }
+      deduced_type {
+        list_type {
+          elem_type {
+            dyn {}
+          }
+        }
+      }
+      output {
+        result_value {
+          list_value {
+            values {
+              int64_value: 1
+            }
+            values {
+              string_value: "two"
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "explicit_dyn"
+      expr: "explicit_dyn"
+      input {
+        key: "explicit_dyn"
+        value {
+          expr: "[1, 'two']"
+        }
+      }
+      deduced_type {
+        list_type {
+          elem_type {
+            dyn {}
+          }
+        }
+      }
+      output {
+        result_value {
+          list_value {
+            values {
+              int64_value: 1
+            }
+            values {
+              string_value: "two"
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "list_value_alias"
+      expr: "list_value_alias"
+      input {
+        key: "list_value_alias"
+        value {
+          expr: "[1, 'two']"
+        }
+      }
+      deduced_type {
+        list_type {
+          elem_type {
+            dyn {}
+          }
+        }
+      }
+      output {
+        result_value {
+          list_value {
+            values {
+              int64_value: 1
+            }
+            values {
+              string_value: "two"
+            }
+          }
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "list_empty_params"
+    description: "List type signature with empty type parameter list is rejected."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: \"list<>\"\n"
+    output {
+      errors: "empty type parameter list"
+    }
+  }
+
+  tests {
+    name: "list_too_many_params"
+    description: "List type signature with more than one type parameter is rejected."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: \"list<int, string>\"\n"
+    output {
+      errors: "list expects at most 1 parameter"
+    }
+  }
+}
+
+sections {
+  name: "map"
+  description: "Canonical map type, dyn parameters, and protobuf alias."
+
+  tests {
+    name: "map"
+    description: "Basic and nested map type signatures."
+    env_yaml:
+      "variables:\n"
+      "  - name: basic\n"
+      "    type: \"map<int, string>\"\n"
+      "  - name: nested\n"
+      "    type: \"map<string, list<int>>\"\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: basic\n"
+        "    type: \"map<int,string>\"\n"
+        "  - name: nested\n"
+        "    type: \"map<string,list<int>>\"\n"
+    }
+    expr_tests {
+      name: "basic"
+      expr: "basic"
+      input {
+        key: "basic"
+        value {
+          expr: "{1: 'one'}"
+        }
+      }
+      deduced_type {
+        map_type {
+          key_type {
+            primitive: INT64
+          }
+          value_type {
+            primitive: STRING
+          }
+        }
+      }
+      output {
+        result_value {
+          map_value {
+            entries {
+              key {
+                int64_value: 1
+              }
+              value {
+                string_value: "one"
+              }
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "nested"
+      expr: "nested"
+      input {
+        key: "nested"
+        value {
+          expr: "{'k': [42]}"
+        }
+      }
+      deduced_type {
+        map_type {
+          key_type {
+            primitive: STRING
+          }
+          value_type {
+            list_type {
+              elem_type {
+                primitive: INT64
+              }
+            }
+          }
+        }
+      }
+      output {
+        result_value {
+          map_value {
+            entries {
+              key {
+                string_value: "k"
+              }
+              value {
+                list_value {
+                  values {
+                    int64_value: 42
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "map_dyn"
+    description: "Bare map, dyn key/value parameters, and google.protobuf.Struct alias."
+    env_yaml:
+      "variables:\n"
+      "  - name: bare\n"
+      "    type: map\n"
+      "  - name: dyn_key\n"
+      "    type: \"map<dyn, string>\"\n"
+      "  - name: dyn_value\n"
+      "    type: \"map<string, dyn>\"\n"
+      "  - name: explicit_dyn\n"
+      "    type: \"map<dyn, dyn>\"\n"
+      "  - name: struct_alias\n"
+      "    type: google.protobuf.Struct\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: bare\n"
+        "    type: \"map<dyn,dyn>\"\n"
+        "  - name: dyn_key\n"
+        "    type: \"map<dyn,string>\"\n"
+        "  - name: dyn_value\n"
+        "    type: \"map<string,dyn>\"\n"
+        "  - name: explicit_dyn\n"
+        "    type: \"map<dyn,dyn>\"\n"
+        "  - name: struct_alias\n"
+        "    type: \"map<string,dyn>\"\n"
+    }
+    expr_tests {
+      name: "bare"
+      expr: "bare"
+      input {
+        key: "bare"
+        value {
+          expr: "{1: 'one', 'two': 2}"
+        }
+      }
+      deduced_type {
+        map_type {
+          key_type {
+            dyn {}
+          }
+          value_type {
+            dyn {}
+          }
+        }
+      }
+      output {
+        result_value {
+          map_value {
+            entries {
+              key {
+                int64_value: 1
+              }
+              value {
+                string_value: "one"
+              }
+            }
+            entries {
+              key {
+                string_value: "two"
+              }
+              value {
+                int64_value: 2
+              }
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "dyn_key"
+      expr: "dyn_key"
+      input {
+        key: "dyn_key"
+        value {
+          expr: "{1: 'one', 'two': 'two'}"
+        }
+      }
+      deduced_type {
+        map_type {
+          key_type {
+            dyn {}
+          }
+          value_type {
+            primitive: STRING
+          }
+        }
+      }
+      output {
+        result_value {
+          map_value {
+            entries {
+              key {
+                int64_value: 1
+              }
+              value {
+                string_value: "one"
+              }
+            }
+            entries {
+              key {
+                string_value: "two"
+              }
+              value {
+                string_value: "two"
+              }
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "dyn_value"
+      expr: "dyn_value"
+      input {
+        key: "dyn_value"
+        value {
+          expr: "{'a': 1, 'b': 'two'}"
+        }
+      }
+      deduced_type {
+        map_type {
+          key_type {
+            primitive: STRING
+          }
+          value_type {
+            dyn {}
+          }
+        }
+      }
+      output {
+        result_value {
+          map_value {
+            entries {
+              key {
+                string_value: "a"
+              }
+              value {
+                int64_value: 1
+              }
+            }
+            entries {
+              key {
+                string_value: "b"
+              }
+              value {
+                string_value: "two"
+              }
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "explicit_dyn"
+      expr: "explicit_dyn"
+      input {
+        key: "explicit_dyn"
+        value {
+          expr: "{1: 'one', 'two': 2}"
+        }
+      }
+      deduced_type {
+        map_type {
+          key_type {
+            dyn {}
+          }
+          value_type {
+            dyn {}
+          }
+        }
+      }
+      output {
+        result_value {
+          map_value {
+            entries {
+              key {
+                int64_value: 1
+              }
+              value {
+                string_value: "one"
+              }
+            }
+            entries {
+              key {
+                string_value: "two"
+              }
+              value {
+                int64_value: 2
+              }
+            }
+          }
+        }
+      }
+    }
+    expr_tests {
+      name: "struct_alias"
+      expr: "struct_alias"
+      input {
+        key: "struct_alias"
+        value {
+          expr: "{'a': 1, 'b': 'two'}"
+        }
+      }
+      deduced_type {
+        map_type {
+          key_type {
+            primitive: STRING
+          }
+          value_type {
+            dyn {}
+          }
+        }
+      }
+      output {
+        result_value {
+          map_value {
+            entries {
+              key {
+                string_value: "a"
+              }
+              value {
+                int64_value: 1
+              }
+            }
+            entries {
+              key {
+                string_value: "b"
+              }
+              value {
+                string_value: "two"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "map_wrong_param_count"
+    description: "Map type signature with a single type parameter is rejected."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: \"map<int>\"\n"
+    output {
+      errors: "map expects 0 or 2 parameters"
+    }
+  }
+
+  tests {
+    name: "map_empty_params"
+    description: "Map type signature with empty type parameter list is rejected."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: \"map<>\"\n"
+    output {
+      errors: "empty type parameter list"
+    }
+  }
+
+  tests {
+    name: "map_too_many_params"
+    description: "Map type signature with three type parameters is rejected."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: \"map<int, string, bool>\"\n"
+    output {
+      errors: "map expects 0 or 2 parameters"
+    }
+  }
+}
+
+sections {
   name: "errors"
   description: "Invalid type signatures."
 
