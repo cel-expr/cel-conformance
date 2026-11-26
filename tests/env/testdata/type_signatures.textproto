@@ -15,17 +15,23 @@ sections {
       "variables:\n"
       "  - name: x\n"
       "    type: bool\n"
-      "    value: true\n"
     output {
       exported_env_yaml:
         "variables:\n"
         "  - name: x\n"
         "    type: bool\n"
-        "    value: true\n"
     }
     expr_tests {
-      name: "default_value"
+      name: "value"
       expr: "x"
+      input {
+        key: "x"
+        value {
+          value {
+            bool_value: true
+          }
+        }
+      }
       deduced_type {
         primitive: BOOL
       }
@@ -44,17 +50,23 @@ sections {
       "variables:\n"
       "  - name: x\n"
       "    type: int\n"
-      "    value: 42\n"
     output {
       exported_env_yaml:
         "variables:\n"
         "  - name: x\n"
         "    type: int\n"
-        "    value: 42\n"
     }
     expr_tests {
-      name: "default_value"
+      name: "value"
       expr: "x"
+      input {
+        key: "x"
+        value {
+          value {
+            int64_value: 42
+          }
+        }
+      }
       deduced_type {
         primitive: INT64
       }
@@ -73,17 +85,23 @@ sections {
       "variables:\n"
       "  - name: x\n"
       "    type: uint\n"
-      "    value: 42\n"
     output {
       exported_env_yaml:
         "variables:\n"
         "  - name: x\n"
         "    type: uint\n"
-        "    value: 42\n"
     }
     expr_tests {
-      name: "default_value"
+      name: "value"
       expr: "x"
+      input {
+        key: "x"
+        value {
+          value {
+            uint64_value: 42
+          }
+        }
+      }
       deduced_type {
         primitive: UINT64
       }
@@ -102,17 +120,23 @@ sections {
       "variables:\n"
       "  - name: x\n"
       "    type: double\n"
-      "    value: 3.14\n"
     output {
       exported_env_yaml:
         "variables:\n"
         "  - name: x\n"
         "    type: double\n"
-        "    value: 3.14\n"
     }
     expr_tests {
-      name: "default_value"
+      name: "value"
       expr: "x"
+      input {
+        key: "x"
+        value {
+          value {
+            double_value: 3.14
+          }
+        }
+      }
       deduced_type {
         primitive: DOUBLE
       }
@@ -125,87 +149,35 @@ sections {
   }
 
   tests {
-    name: "double_inf"
-    description: "Canonical double type with positive infinity default value."
+    name: "string"
+    description: "Canonical string type."
     env_yaml:
       "variables:\n"
       "  - name: x\n"
-      "    type: double\n"
-      "    value: .inf\n"
+      "    type: string\n"
     output {
       exported_env_yaml:
         "variables:\n"
         "  - name: x\n"
-        "    type: double\n"
-        "    value: .inf\n"
+        "    type: string\n"
     }
     expr_tests {
-      name: "default_value"
+      name: "value"
       expr: "x"
-      deduced_type {
-        primitive: DOUBLE
-      }
-      output {
-        result_value {
-          double_value: inf
+      input {
+        key: "x"
+        value {
+          value {
+            string_value: "hello"
+          }
         }
       }
-    }
-  }
-
-  tests {
-    name: "double_neg_inf"
-    description: "Canonical double type with negative infinity default value."
-    env_yaml:
-      "variables:\n"
-      "  - name: x\n"
-      "    type: double\n"
-      "    value: -.inf\n"
-    output {
-      exported_env_yaml:
-        "variables:\n"
-        "  - name: x\n"
-        "    type: double\n"
-        "    value: -.inf\n"
-    }
-    expr_tests {
-      name: "default_value"
-      expr: "x"
       deduced_type {
-        primitive: DOUBLE
+        primitive: STRING
       }
       output {
         result_value {
-          double_value: -inf
-        }
-      }
-    }
-  }
-
-  tests {
-    name: "double_nan"
-    description: "Canonical double type with NaN default value."
-    env_yaml:
-      "variables:\n"
-      "  - name: x\n"
-      "    type: double\n"
-      "    value: .nan\n"
-    output {
-      exported_env_yaml:
-        "variables:\n"
-        "  - name: x\n"
-        "    type: double\n"
-        "    value: .nan\n"
-    }
-    expr_tests {
-      name: "default_value"
-      expr: "x"
-      deduced_type {
-        primitive: DOUBLE
-      }
-      output {
-        result_value {
-          double_value: nan
+          string_value: "hello"
         }
       }
     }
@@ -311,19 +283,6 @@ sections {
       "    type: int\n"
     output {
       errors: "Duplicate key 'type'"
-    }
-  }
-
-  tests {
-    name: "negative_uint_value"
-    description: "Negative default value for a uint variable is rejected."
-    env_yaml:
-      "variables:\n"
-      "  - name: x\n"
-      "    type: uint\n"
-      "    value: -42\n"
-    output {
-      errors: "Failed to parse uint constant"
     }
   }
 }
