@@ -182,6 +182,41 @@ sections {
       }
     }
   }
+
+  tests {
+    name: "bytes"
+    description: "Canonical bytes type."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: bytes\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: bytes\n"
+    }
+    expr_tests {
+      name: "value"
+      expr: "x"
+      input {
+        key: "x"
+        value {
+          value {
+            bytes_value: "abc"
+          }
+        }
+      }
+      deduced_type {
+        primitive: BYTES
+      }
+      output {
+        result_value {
+          bytes_value: "abc"
+        }
+      }
+    }
+  }
 }
 
 sections {
