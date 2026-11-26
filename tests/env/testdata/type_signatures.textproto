@@ -374,6 +374,94 @@ sections {
 }
 
 sections {
+  name: "null"
+  description: "Canonical null type and aliases."
+
+  tests {
+    name: "null"
+    description: "Canonical null type."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: \"null\"\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: x\n"
+        "    type: \"null\"\n"
+    }
+    expr_tests {
+      name: "default_value"
+      expr: "x"
+      deduced_type {
+        null: NULL_VALUE
+      }
+      output {
+        result_value {
+          null_value: NULL_VALUE
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "null_aliases"
+    description: "Aliases null_type and google.protobuf.NullValue normalize to null."
+    env_yaml:
+      "variables:\n"
+      "  - name: from_null_type\n"
+      "    type: null_type\n"
+      "  - name: from_null_value\n"
+      "    type: google.protobuf.NullValue\n"
+    output {
+      exported_env_yaml:
+        "variables:\n"
+        "  - name: from_null_type\n"
+        "    type: \"null\"\n"
+        "  - name: from_null_value\n"
+        "    type: \"null\"\n"
+    }
+    expr_tests {
+      name: "from_null_type"
+      expr: "from_null_type"
+      deduced_type {
+        null: NULL_VALUE
+      }
+      output {
+        result_value {
+          null_value: NULL_VALUE
+        }
+      }
+    }
+    expr_tests {
+      name: "from_null_value"
+      expr: "from_null_value"
+      deduced_type {
+        null: NULL_VALUE
+      }
+      output {
+        result_value {
+          null_value: NULL_VALUE
+        }
+      }
+    }
+  }
+
+  tests {
+    name: "non_empty_null_value"
+    description: "Non-empty default value for a null variable is rejected."
+    env_yaml:
+      "variables:\n"
+      "  - name: x\n"
+      "    type: \"null\"\n"
+      "    value: anything\n"
+    output {
+      errors: "Failed to parse null constant"
+    }
+  }
+}
+
+sections {
   name: "errors"
   description: "Invalid type signatures."
 
